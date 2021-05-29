@@ -109,6 +109,12 @@ class IndexController {
       }).catch((err: any) => {
         console.error(err);
       });
+    } else if (exchangeName === 'defi') {
+      this.defi(currency).then((item: any) => {
+        this.replyRawDeFi(req, currency, item);
+      }).catch((err: any) => {
+        console.error(err);
+      });
     }
   }
 
@@ -162,6 +168,182 @@ class IndexController {
       console.error(error);
     }
   }
+
+  public defi = async (message: string): Promise<any> => {
+    try {
+      const data = JSON.stringify({
+        "currency": "USD",
+        "code": message.toUpperCase(),
+        "meta": true
+      });
+      const config: any = {
+        method: 'post',
+        url: 'https://api.livecoinwatch.com/coins/single',
+        headers: {
+          'x-api-key': process.env.X_APT_KEY,
+          'Content-Type': 'application/json'
+        },
+        data: data
+      };
+      const response = await axios(config)
+      return response.data
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  public replyRawDeFi = (req: any, currency: any, item: any) => {
+    const datetime = new Date().toLocaleString("th-TH", {
+      timeZone: "Asia/Bangkok",
+      hour12: false
+    });
+
+    let objBnb: any = {}
+    // Satang Pro (กำหนดให้เป็น Float)
+    objBnb.lastPrice = '$' + parseFloat(item.rate).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาล่าสุด
+    objBnb.highPrice = '$' + parseFloat(item.allTimeHighUSD).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาสูงสุด
+    objBnb.volume = '$' + parseFloat(item.volume).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ปริมาณมาเทรด
+
+
+    var payload = [{
+      "type": "flex",
+      "altText": `${item.name}`,
+      "contents": {
+        "type": "bubble",
+        "size": "mega",
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "contents": [{
+            "type": "box",
+            "layout": "baseline",
+            "contents": [{
+              "type": "icon",
+              "size": "3xl",
+              "url": `${item.png64}`,
+            }, {
+              "type": "text",
+              "text": `${item.name}`,
+              "weight": "bold",
+              "size": "xxl",
+              "margin": "md",
+              "offsetTop": "-1.5%",
+            },]
+          },
+          {
+            "type": "separator",
+            "margin": "xxl"
+          },
+          {
+            "type": "box",
+            "layout": "vertical",
+            "margin": "xxl",
+            "spacing": "sm",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [{
+                  "type": "text",
+                  "text": "ราคาล่าสุด",
+                  "size": "sm",
+                  "color": "#555555",
+                  "flex": 0
+                },
+                {
+                  "type": "text",
+                  "text": `${objBnb.lastPrice}`,
+                  "size": "xl",
+                  "color": "#111111",
+                  "align": "end"
+                }
+                ]
+              },
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [{
+                  "type": "text",
+                  "text": "ราคาสูงสุด",
+                  "size": "sm",
+                  "color": "#555555",
+                  "flex": 0
+                },
+                {
+                  "type": "text",
+                  "text": `${objBnb.highPrice}`,
+                  "size": "sm",
+                  "color": "#111111",
+                  "align": "end"
+                }
+                ]
+              },
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [{
+                  "type": "text",
+                  "text": "ปริมาณเทรด",
+                  "size": "sm",
+                  "color": "#555555",
+                  "flex": 0
+                },
+                {
+                  "type": "text",
+                  "text": `${objBnb.volume}`,
+                  "size": "sm",
+                  "color": "#111111",
+                  "align": "end"
+                }
+                ]
+              },
+            ]
+          },
+          {
+            "type": "separator",
+            "margin": "xxl"
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "margin": "md",
+            "contents": [{
+              "type": "text",
+              "text": "วันที่",
+              "size": "xs",
+              "color": "#aaaaaa",
+              "flex": 0
+            },
+            {
+              "type": "text",
+              "text": `${datetime}`,
+              "color": "#aaaaaa",
+              "size": "xs",
+              "align": "end"
+            }
+            ]
+          }
+          ]
+        },
+        "styles": {
+          "footer": {
+            "separator": true
+          }
+        }
+      }
+    }]
+    return axios({
+      method: 'post',
+      url: `${this.LINE_MESSAGING_API}/reply`,
+      headers: this.LINE_HEADER,
+      data:
+        JSON.stringify({
+          replyToken: req.body.events[0].replyToken,
+          messages: payload
+        })
+    });
+  }
+
 
   public replyRaw = (req: any, currency: any, exchange: any, value: any) => {
     var datetime = new Date().toLocaleString("th-TH", {
