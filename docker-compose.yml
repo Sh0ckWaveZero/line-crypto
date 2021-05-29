@@ -5,7 +5,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: server
+    container_name: linebot-crypto
     ports:
       - "4444:4444"
     volumes:
