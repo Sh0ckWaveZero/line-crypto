@@ -98,6 +98,7 @@ class IndexController {
       });
     } else if (exchangeName === 'bnb') {
       this.binance(currency).then((item: any) => {
+        if (_.isEmpty(item)) return
         let objBnb: any = {}
         // Satang Pro (กำหนดให้เป็น Float)
         objBnb.lastPrice = '$' + parseFloat(item.lastPrice).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาล่าสุด
@@ -111,6 +112,7 @@ class IndexController {
       });
     } else if (exchangeName === 'defi') {
       this.defi(currency).then((item: any) => {
+        if (_.isEmpty(item)) return
         this.replyRawDeFi(req, currency, item);
       }).catch((err: any) => {
         console.error(err);
