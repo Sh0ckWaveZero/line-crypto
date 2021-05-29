@@ -200,9 +200,9 @@ class IndexController {
 
     let objBnb: any = {}
     // Satang Pro (กำหนดให้เป็น Float)
-    objBnb.lastPrice = '$' + parseFloat(item.rate).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาล่าสุด
-    objBnb.highPrice = '$' + parseFloat(item.allTimeHighUSD).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาสูงสุด
-    objBnb.volume = '$' + parseFloat(item.volume).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ปริมาณมาเทรด
+    objBnb.lastPrice = '$' + parseFloat(item.rate).toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาล่าสุด
+    objBnb.highPrice = '$' + parseFloat(item.allTimeHighUSD).toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาสูงสุด
+    objBnb.volume = '$' + parseFloat(item.volume).toFixed(3).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ปริมาณมาเทรด
 
 
     var payload = [{
@@ -252,7 +252,7 @@ class IndexController {
                 },
                 {
                   "type": "text",
-                  "text": `${(objBnb.lastPrice).toFixed(3)}`,
+                  "text": `${objBnb.lastPrice}`,
                   "size": "xl",
                   "color": "#111111",
                   "align": "end"
@@ -271,7 +271,7 @@ class IndexController {
                 },
                 {
                   "type": "text",
-                  "text": `${(objBnb.highPrice).toFixed(3)}`,
+                  "text": `${objBnb.highPrice}`,
                   "size": "sm",
                   "color": "#111111",
                   "align": "end"
@@ -290,7 +290,7 @@ class IndexController {
                 },
                 {
                   "type": "text",
-                  "text": `${(objBnb.volume).toFixed(2)}`,
+                  "text": `${objBnb.volume}`,
                   "size": "sm",
                   "color": "#111111",
                   "align": "end"
