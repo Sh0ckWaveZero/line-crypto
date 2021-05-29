@@ -225,7 +225,7 @@ class IndexController {
               "type": "text",
               "text": `${item.name}`,
               "weight": "bold",
-              "size": "xxl",
+              "size": "xl",
               "margin": "md",
               "offsetTop": "-1.5%",
             },]
@@ -252,7 +252,7 @@ class IndexController {
                 },
                 {
                   "type": "text",
-                  "text": `${objBnb.lastPrice}`,
+                  "text": `${(objBnb.lastPrice).toFixed(3)}`,
                   "size": "xl",
                   "color": "#111111",
                   "align": "end"
@@ -271,7 +271,7 @@ class IndexController {
                 },
                 {
                   "type": "text",
-                  "text": `${objBnb.highPrice}`,
+                  "text": `${(objBnb.highPrice).toFixed(3)}`,
                   "size": "sm",
                   "color": "#111111",
                   "align": "end"
@@ -290,7 +290,7 @@ class IndexController {
                 },
                 {
                   "type": "text",
-                  "text": `${objBnb.volume}`,
+                  "text": `${(objBnb.volume).toFixed(2)}`,
                   "size": "sm",
                   "color": "#111111",
                   "align": "end"
