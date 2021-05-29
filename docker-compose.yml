@@ -4,7 +4,7 @@ services:
   server:
     build:
       context: ./
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: server
     ports:
       - "4444:4444"
