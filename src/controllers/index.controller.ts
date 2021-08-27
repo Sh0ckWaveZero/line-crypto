@@ -96,7 +96,7 @@ class IndexController {
       }).catch((err: any) => {
         console.error(err);
       });
-    } else if (exchangeName === 'bnb') {
+    } else if (exchangeName === 'bn') {
       this.binance(currency).then((item: any) => {
         if (_.isEmpty(item)) return
         let objBnb: any = {}
@@ -108,7 +108,7 @@ class IndexController {
         objBnb.changePriceOriginal = item.priceChangePercent
         this.replyRaw(req, currency, exchangeName, objBnb);
       }).catch((err: any) => {
-        console.error(err);
+        console.error(err.message);
       });
     } else if (exchangeName === 'defi') {
       this.defi(currency).then((item: any) => {
@@ -146,10 +146,11 @@ class IndexController {
 
   public binance = async (message: string): Promise<any> => {
     try {
-      const response = await axios.get(
+      return await axios.get(
         `https://api.binance.com/api/v3/ticker/24hr?symbol=${message.toUpperCase()}USDT`
-      );
-      return response.data
+      ).then((item: any) => {
+        return item.data
+      })
     } catch (error) {
       console.error(error)
     }
@@ -163,6 +164,7 @@ class IndexController {
       for (let key in response.data) {
         let value = response.data[key];
         if (value.trading_pairs === `${message.toUpperCase()}_THB`) {
+
           return value
         }
       }
@@ -347,7 +349,7 @@ class IndexController {
   }
 
 
-  public replyRaw = (req: any, currency: any, exchange: any, value: any) => {
+  public replyRaw = async (req: any, currency: any, exchange: any, value: any) => {
     var datetime = new Date().toLocaleString("th-TH", {
       timeZone: "Asia/Bangkok",
       hour12: false
@@ -376,7 +378,7 @@ class IndexController {
       exchangeLogoUrl = 'https://i.ibb.co/7Vs6CP9/btz.png'
     }
 
-    if (exchange === 'bnb') {
+    if (exchange === 'bn') {
       textColor = '#F0B909'
       exchangeNm = 'Binance'
       exchangeLogoUrl = 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png'
@@ -553,16 +555,21 @@ class IndexController {
         }
       }
     }]
-    return axios({
-      method: 'post',
-      url: `${this.LINE_MESSAGING_API}/reply`,
-      headers: this.LINE_HEADER,
-      data:
-        JSON.stringify({
-          replyToken: req.body.events[0].replyToken,
-          messages: payload
+
+    try {
+      await axios({
+        method: 'post',
+        url: `${this.LINE_MESSAGING_API}/reply`,
+        headers: this.LINE_HEADER,
+        data: JSON.stringify({
+          "replyToken": req.body.events[0].replyToken,
+          "messages": payload
         })
-    });
+      });
+
+    } catch (err) {
+      return console.error('err', err);
+    }
   }
 }
 
