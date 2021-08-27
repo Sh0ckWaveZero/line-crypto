@@ -1,6 +1,10 @@
 node_modules/
-
 *.md
-
-Dockerfile
-Dockerfile.dev
+npm-debug.log
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.gitignore
+.vscode
+.github

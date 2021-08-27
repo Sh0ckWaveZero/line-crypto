@@ -7,17 +7,19 @@ services:
       dockerfile: Dockerfile
     container_name: linebot-crypto
     ports:
-      - "4444:4444"
+      - "4325:4325"
     volumes:
-      - ./:/app
-      - /app/node_modules
+      - ./:/usr/src/app/linebot-crypto
+      - dependencies:/usr/src/app/linebot-crypto/node_modules
+    working_dir: /usr/src/app/linebot-crypto
     restart: "unless-stopped"
     networks:
-      - backend
+      - yadom
+
 networks:
-  backend:
-    driver: bridge
+  yadom:
+    external: true
 
 volumes:
-  data:
+  dependencies:
     driver: local

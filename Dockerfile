@@ -1,11 +1,10 @@
-FROM node:14.14.0-alpine3.12
+FROM node:lts-alpine3.14
 
-COPY . ./app
-
-WORKDIR /app
-
-RUN npm install
+WORKDIR /usr/src/app/linebot-crypto
+COPY package.json ./
+RUN yarn install
+COPY . .
 
 EXPOSE 4444
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
