@@ -11,8 +11,11 @@ services:
     volumes:
       - ./:/usr/src/app/linebot-crypto
       - dependencies:/usr/src/app/linebot-crypto/node_modules
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
     working_dir: /usr/src/app/linebot-crypto
     restart: "unless-stopped"
+    
     networks:
       - yadom
 
