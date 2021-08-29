@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import axios from 'axios'
-import _ from 'underscore';
+import _, { flatten } from 'underscore';
+import { str } from 'envalid';
+import { ExchangeService } from '../services/exchange.service';
+import CryptoInfo from 'interfaces/crypto.interface';
 
 class IndexController {
   private token = `Bearer ${process.env.LINE_TOKEN}`
@@ -10,6 +13,8 @@ class IndexController {
     'Content-Type': 'application/json',
     'Authorization': this.token
   };
+
+  private exchangeService = new ExchangeService()
 
   public index = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -51,152 +56,80 @@ class IndexController {
   public handleText(req: Request, message: string) {
     // reject not en lang
     if (message.charAt(0) !== '/') return
-    let splitMessage = message.split(" ");
-    const exchangeName = splitMessage[0].substr(1, splitMessage[0].length).toLowerCase();
-    const currency = splitMessage[1]
-    if (exchangeName === 'bk') {
-      this.bitkub(currency).then((item: any) => {
-        if (_.isEmpty(item)) return
-        let objBk: any = {}
-        // Bitkub (กำหนดให้เป็น Float)
-        objBk.lastPrice = parseFloat(item.last).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + '฿' // ราคาล่าสุด
-        objBk.highPrice = parseFloat(item.high24hr).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + '฿' // ราคาสูงสุด
-        objBk.lowPrice = parseFloat(item.low24hr).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + '฿' // ราคาต่ำสุด
-        objBk.changePrice = parseFloat(item.change).toFixed(2).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + '฿' // ราคาเปลี่ยนแปลงปัจจุบัน และกำหนด 2 decimal
-        objBk.changePriceOriginal = item.change
-        this.replyRaw(req, currency, exchangeName, objBk);
-      }).catch((err: any) => {
-        console.error(err);
-      });
-    } else if (exchangeName === 'st') {
-      this.satangcorp(currency).then((item: any) => {
-        if (_.isEmpty(item)) return
-        let objSt: any = {}
-        // Satang Pro (กำหนดให้เป็น Float)
-        objSt.lastPrice = parseFloat(item.lastPrice).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + ' ฿' // ราคาล่าสุด
-        objSt.highPrice = parseFloat(item.highPrice).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + ' ฿' // ราคาสูงสุด
-        objSt.lowPrice = parseFloat(item.lowPrice).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + ' ฿' // ราคาต่ำสุด
-        objSt.changePrice = parseFloat(item.priceChange).toFixed(2).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + ' ฿' // ราคาเปลี่ยนแปลงปัจจุบัน และกำหนด 2 decimal
-        objSt.changePriceOriginal = item.priceChange
-        this.replyRaw(req, currency, exchangeName, objSt);
-      }).catch((err: any) => {
-        console.error(err);
-      });
-    } else if (exchangeName === 'btz') {
-      this.bitazza(currency).then((item: any) => {
-        if (_.isEmpty(item)) return
-        let objBtz: any = {}
-        // Satang Pro (กำหนดให้เป็น Float)
-        objBtz.lastPrice = parseFloat(item.last_price).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + '฿' // ราคาล่าสุด
-        objBtz.highPrice = parseFloat(item.highest_price_24h).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + '฿' // ราคาสูงสุด
-        objBtz.lowPrice = parseFloat(item.lowest_price_24h).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") + '฿' // ราคาต่ำสุด
-        objBtz.changePrice = parseFloat(item.price_change_percent_24h).toFixed(2) + '%' // ราคาเปลี่ยนแปลงปัจจุบัน และกำหนด 2 decimal
-        objBtz.changePriceOriginal = item.price_change_percent_24h
-        this.replyRaw(req, currency, exchangeName, objBtz);
-      }).catch((err: any) => {
-        console.error(err);
-      });
-    } else if (exchangeName === 'bn') {
-      this.binance(currency).then((item: any) => {
-        if (_.isEmpty(item)) return
-        let objBnb: any = {}
-        // Satang Pro (กำหนดให้เป็น Float)
-        objBnb.lastPrice = '$' + parseFloat(item.lastPrice).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาล่าสุด
-        objBnb.highPrice = '$' + parseFloat(item.highPrice).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาสูงสุด
-        objBnb.lowPrice = '$' + parseFloat(item.lowPrice).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",") // ราคาต่ำสุด
-        objBnb.changePrice = parseFloat(item.priceChangePercent).toFixed(2) + '%' // ราคาเปลี่ยนแปลงปัจจุบัน และกำหนด 2 decimal
-        objBnb.changePriceOriginal = item.priceChangePercent
-        this.replyRaw(req, currency, exchangeName, objBnb);
-      }).catch((err: any) => {
-        console.error(err.message);
-      });
+    let commandList: any[] = message.split(" ");
+    let exchangeName: string = ""
+    let currency: any[] = []
+    commandList.forEach((command: string, index: number) => {
+      if (index === 0) {
+        exchangeName = command.substr(1, command.length).toLowerCase();
+      } else if (!_.isEqual(command, '')) {
+        currency.push(command);
+      }
+    })
+    this.handleCommand(exchangeName, currency, req)
+  }
+
+  async handleCommand(_exchangeName: string, currency: any[], req: Request) {
+    const exchangeName = _exchangeName.toLowerCase()
+    if (exchangeName === 'bk' || exchangeName === 'bitkub') {
+      const promises: any[] = [];
+      for (const index in currency) {
+        promises.push(this.exchangeService.getBitkub(currency[index]));
+      }
+      Promise.all(promises)
+        .then((items) => {
+          this.replyRaw(req, exchangeName, items);
+        })
+        .catch((err) => {
+          console.error(err.message);
+        });
+    } else if (exchangeName === 'st' || exchangeName === 'satang') {
+      const promises: any[] = [];
+      for (const index in currency) {
+        promises.push(this.exchangeService.getSatangcorp(currency[index]));
+      }
+      Promise.all(promises)
+        .then((items) => {
+          this.replyRaw(req, exchangeName, items);
+        })
+        .catch((err) => {
+          console.error(err.message);
+        });
+    } else if (exchangeName === 'btz' || exchangeName === 'bitazza') {
+      const promises: any[] = [];
+      for (const index in currency) {
+        promises.push(this.exchangeService.getBitazza(currency[index]));
+      }
+
+      Promise.all(promises)
+        .then((items) => {
+          if (_.isUndefined(items[0])) {
+            this.replyNotFound(req)
+            return
+          }
+          this.replyRaw(req, exchangeName, items);
+        })
+        .catch((err) => {
+          console.error(err.message);
+        });
+    } else if (exchangeName === 'bn' || exchangeName === 'binance') {
+      const promises: any[] = [];
+      for (const index in currency) {
+        promises.push(this.exchangeService.getBinance(currency[index]));
+      }
+      Promise.all(promises)
+        .then((items) => {
+          this.replyRaw(req, exchangeName, items);
+        })
+        .catch((err) => {
+          console.error(err.message);
+        });
     } else if (exchangeName === 'defi') {
-      this.defi(currency).then((item: any) => {
-        if (_.isEmpty(item)) return
-        this.replyRawDeFi(req, currency, item);
-      }).catch((err: any) => {
-        console.error(err);
-      });
+
     }
   }
 
-
-  public satangcorp = async (message: string): Promise<any> => {
-    try {
-      const response = await axios.get(
-        `https://satangcorp.com/api/v3/ticker/24hr?symbol=${message}_thb`
-      );
-      return response.data
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  public bitkub = async (message: string): Promise<any> => {
-    try {
-      const response: any = await axios.get(`https://api.bitkub.com/api/market/ticker?sym=THB_${message.toUpperCase()}`)
-      for (let key of Object.keys(response.data)) {
-        let value = response.data[key];
-        return value
-      }
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  public binance = async (message: string): Promise<any> => {
-    try {
-      return await axios.get(
-        `https://api.binance.com/api/v3/ticker/24hr?symbol=${message.toUpperCase()}USDT`
-      ).then((item: any) => {
-        return item.data
-      })
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  public bitazza = async (message: string): Promise<any> => {
-    try {
-      const response = await axios.get(
-        `https://apexapi.bitazza.com:8443/AP/summary`
-      );
-      for (let key in response.data) {
-        let value = response.data[key];
-        if (value.trading_pairs === `${message.toUpperCase()}_THB`) {
-
-          return value
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  public defi = async (message: string): Promise<any> => {
-    try {
-      const data = JSON.stringify({
-        "currency": "USD",
-        "code": message.toUpperCase(),
-        "meta": true
-      });
-      const config: any = {
-        method: 'post',
-        url: 'https://api.livecoinwatch.com/coins/single',
-        headers: {
-          'x-api-key': process.env.X_APT_KEY,
-          'Content-Type': 'application/json'
-        },
-        data: data
-      };
-      const response = await axios(config)
-      return response.data
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  public replyRawDeFi = (req: any, currency: any, item: any) => {
+  public replyRawDeFi = (req: Request, currency: any, item: any) => {
     const datetime = new Date().toLocaleString("th-TH", {
       timeZone: "Asia/Bangkok",
       hour12: false
@@ -336,241 +269,392 @@ class IndexController {
         }
       }
     }]
-    return axios({
-      method: 'post',
-      url: `${this.LINE_MESSAGING_API}/reply`,
-      headers: this.LINE_HEADER,
-      data:
-        JSON.stringify({
-          replyToken: req.body.events[0].replyToken,
-          messages: payload
-        })
-    });
+    this.sendMessage(req.body.events[0].replyToken, payload)
   }
 
-
-  public replyRaw = async (req: any, currency: any, exchange: any, value: any) => {
-    var datetime = new Date().toLocaleString("th-TH", {
-      timeZone: "Asia/Bangkok",
-      hour12: false
-    });
-
-    let textColor = ""
-    let exchangeNm = ""
-    let exchangeLogoUrl = ""
-    let priceChangeColor = ""
-
-    if (exchange === 'bk') {
-      textColor = '#333333'
-      exchangeNm = 'bitkub'
-      exchangeLogoUrl = 'https://i.ibb.co/Qr2z2qX/bk.png'
+  exchangeConfig(exchange: string): any {
+    let obj: any = {}
+    if (exchange === 'bk' || exchange === 'bitkub') {
+      obj.textColor = '#333333'
+      obj.exchangeNm = 'bitkub'
+      obj.exchangeLogoUrl = 'https://i.ibb.co/Qr2z2qX/bk.png'
     }
 
-    if (exchange === 'st') {
-      textColor = '#1717d1'
-      exchangeNm = 'Satang Pro'
-      exchangeLogoUrl = 'https://i.ibb.co/Df59mGn/st.png'
+    if (exchange === 'st' || exchange === 'satang') {
+      obj.textColor = '#1717d1'
+      obj.exchangeNm = 'Satang Pro'
+      obj.exchangeLogoUrl = 'https://i.ibb.co/Df59mGn/st.png'
     }
 
-    if (exchange === 'btz') {
-      textColor = '#8FA775'
-      exchangeNm = 'Bitazza'
-      exchangeLogoUrl = 'https://i.ibb.co/7Vs6CP9/btz.png'
+    if (exchange === 'btz' || exchange === 'bitazza') {
+      obj.textColor = '#8FA775'
+      obj.exchangeNm = 'Bitazza'
+      obj.exchangeLogoUrl = 'https://i.ibb.co/7Vs6CP9/btz.png'
     }
 
-    if (exchange === 'bn') {
-      textColor = '#F0B909'
-      exchangeNm = 'Binance'
-      exchangeLogoUrl = 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png'
+    if (exchange === 'bn' || exchange === 'binance') {
+      obj.textColor = '#F0B909'
+      obj.exchangeNm = 'Binance'
+      obj.exchangeLogoUrl = 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png'
     }
+    return obj;
+  }
 
-    if (value.changePriceOriginal > 0) {
-      priceChangeColor = '#00D666'
-    } else {
-      priceChangeColor = '#F74C6C'
-    }
-
-    var payload = [{
-      "type": "flex",
-      "altText": `${currency.toUpperCase()}`,
-      "contents": {
+  private replyNotFound(req: Request) {
+    const msg = [
+      {
         "type": "bubble",
-        "size": "mega",
+        "size": "giga",
         "body": {
           "type": "box",
           "layout": "vertical",
-          "contents": [{
-            "type": "box",
-            "layout": "baseline",
-            "contents": [{
-              "type": "icon",
-              "size": "3xl",
-              "url": `https://cryptoicon-api.vercel.app/api/icon/${currency}`,
-            }, {
-              "type": "text",
-              "text": `${currency.toUpperCase()}`,
-              "weight": "bold",
-              "size": "xxl",
-              "margin": "md",
-              "offsetTop": "-1.5%",
-            },]
-          },
-          {
-            "type": "separator",
-            "margin": "xxl"
-          },
-          {
-            "type": "box",
-            "layout": "vertical",
-            "margin": "xxl",
-            "spacing": "sm",
-            "contents": [{
-              "type": "box",
-              "layout": "baseline",
-              "contents": [{
-                "type": "icon",
-                "size": "xl",
-                "url": `${exchangeLogoUrl}`,
-              },
-              {
-                "type": "text",
-                "text": `${exchangeNm}`,
-                "size": "sm",
-                "color": `${textColor}`,
-                "margin": "md",
-                "flex": 0,
-                "weight": "bold",
-                "offsetTop": "-25%",
-              }
-              ]
+          "contents": [
+            {
+              "type": "image",
+              "url": "https://cdn.dribbble.com/users/285475/screenshots/2083086/dribbble_1.gif",
+              "size": "full",
+              "aspectMode": "cover",
+              "aspectRatio": "4:3",
+              "gravity": "top",
+              "animated": true
             },
             {
               "type": "box",
-              "layout": "horizontal",
-              "contents": [{
-                "type": "text",
-                "text": "ราคาล่าสุด",
-                "size": "sm",
-                "color": "#555555",
-                "flex": 0
-              },
-              {
-                "type": "text",
-                "text": `${value.lastPrice}`,
-                "size": "xl",
-                "color": "#111111",
-                "align": "end"
-              }
-              ]
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "box",
+                  "layout": "vertical",
+                  "contents": [
+                    {
+                      "type": "text",
+                      "text": "...ข่อยขอบอกอีหยั่งแน่",
+                      "size": "xl",
+                      "color": "#383E56",
+                      "weight": "bold"
+                    }
+                  ]
+                },
+                {
+                  "type": "box",
+                  "layout": "baseline",
+                  "contents": [
+                    {
+                      "type": "text",
+                      "text": "ตัวเจ้าเลือกเบิ่งมันบ่มีเด้อ!",
+                      "color": "#383E56",
+                      "size": "sm",
+                      "flex": 0
+                    }
+                  ],
+                  "spacing": "lg"
+                }
+              ],
+              "position": "relative",
+              "offsetBottom": "0px",
+              "offsetStart": "0px",
+              "offsetEnd": "0px",
+              "backgroundColor": "#FABEA7",
+              "paddingAll": "20px",
+              "paddingTop": "18px"
             },
             {
               "type": "box",
-              "layout": "horizontal",
-              "contents": [{
-                "type": "text",
-                "text": "ราคาสูงสุด",
-                "size": "sm",
-                "color": "#555555",
-                "flex": 0
-              },
-              {
-                "type": "text",
-                "text": `${value.highPrice}`,
-                "size": "sm",
-                "color": "#111111",
-                "align": "end"
-              }
-              ]
-            },
-            {
-              "type": "box",
-              "layout": "horizontal",
-              "contents": [{
-                "type": "text",
-                "text": "ราคาต่ำสุด",
-                "size": "sm",
-                "color": "#555555",
-                "flex": 0
-              },
-              {
-                "type": "text",
-                "text": `${value.lowPrice}`,
-                "size": "sm",
-                "color": "#111111",
-                "align": "end"
-              }
-              ]
-            },
-            {
-              "type": "box",
-              "layout": "horizontal",
-              "contents": [{
-                "type": "text",
-                "text": "ราคาเปลี่ยนแปลง",
-                "size": "sm",
-                "color": "#555555",
-                "flex": 0
-              },
-              {
-                "type": "text",
-                "text": `${value.changePrice}`,
-                "size": "sm",
-                "color": `${priceChangeColor}`,
-                "align": "end"
-              }
-              ]
-            },
-            ]
-          },
-          {
-            "type": "separator",
-            "margin": "xxl"
-          },
-          {
-            "type": "box",
-            "layout": "horizontal",
-            "margin": "md",
-            "contents": [{
-              "type": "text",
-              "text": "วันที่",
-              "size": "xs",
-              "color": "#aaaaaa",
-              "flex": 0
-            },
-            {
-              "type": "text",
-              "text": `${datetime}`,
-              "color": "#aaaaaa",
-              "size": "xs",
-              "align": "end"
+              "layout": "vertical",
+              "contents": [
+                {
+                  "type": "text",
+                  "text": "404",
+                  "color": "#ffffff",
+                  "align": "center",
+                  "size": "xs",
+                  "offsetTop": "3px",
+                  "weight": "bold"
+                }
+              ],
+              "position": "absolute",
+              "cornerRadius": "20px",
+              "offsetTop": "18px",
+              "backgroundColor": "#ff334b",
+              "offsetStart": "18px",
+              "height": "25px",
+              "width": "53px"
             }
-            ]
-          }
-          ]
-        },
-        "styles": {
-          "footer": {
-            "separator": true
-          }
+          ],
+          "paddingAll": "0px"
         }
       }
-    }]
+    ]
+    this.sendMessage(req, this.flexMessage(msg));
+  }
 
+  public replyRaw = async (req: Request, exchange: any, cryptoInfoItems: CryptoInfo[]) => {
+    let priceChangeColor: string = ''
+    const { textColor, exchangeNm, exchangeLogoUrl } = this.exchangeConfig(exchange)
+    let stylesConfig: StypeConfig = {}
+    let bubbleItems: any[] = []
+    for (const index in cryptoInfoItems) {
+      if (cryptoInfoItems[index].changePriceOriginal > 0) {
+        priceChangeColor = '#00D666'
+      } else {
+        priceChangeColor = '#F74C6C'
+      }
+      stylesConfig = {
+        textColor,
+        exchangeNm,
+        exchangeLogoUrl,
+        priceChangeColor
+      }
+      bubbleItems.push(this.bubbleMessage(cryptoInfoItems[index], stylesConfig))
+    }
+
+    Promise.all(bubbleItems)
+      .then(async (items) => {
+        const payload = this.flexMessage(items)
+        this.sendMessage(req, payload)
+      })
+      .catch((err) => {
+        console.error("error: ", err.message);
+      });
+  }
+
+  sendMessage = (req: Request, payload: any) => {
     try {
-      await axios({
+      return axios({
         method: 'post',
         url: `${this.LINE_MESSAGING_API}/reply`,
         headers: this.LINE_HEADER,
         data: JSON.stringify({
-          "replyToken": req.body.events[0].replyToken,
-          "messages": payload
+          replyToken: req.body.events[0].replyToken,
+          messages: payload
         })
       });
-
     } catch (err) {
-      return console.error('err', err);
+      console.log('err: ', err);
+      console.error(err);
     }
+  }
+
+  bubbleMessage(data: CryptoInfo, styles: StypeConfig): any {
+    let datetime = new Date().toLocaleString("th-TH", {
+      timeZone: "Asia/Bangkok",
+      hour12: false
+    });
+    let bubbleMessageTpl = {}
+    bubbleMessageTpl =
+    {
+      "type": "bubble",
+      "size": "mega",
+      "header": {
+        "type": "box",
+        "layout": "baseline",
+        "contents": [
+          {
+            "type": "icon",
+            "url": `https://cryptoicon-api.vercel.app/api/icon/${data.currencyName}`,
+            "size": "4xl"
+          }
+        ],
+        "justifyContent": "center",
+        "alignItems": "center",
+        "paddingAll": "lg",
+        "offsetTop": "lg"
+      },
+      "hero": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "text",
+            "text": `${data.currencyName.toUpperCase()}`,
+            "align": "center",
+            "size": "xxl",
+            "weight": "bold",
+            "color": "#FFFFFF"
+          }
+        ],
+        "alignItems": "center",
+        "justifyContent": "center"
+      },
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "box",
+            "layout": "baseline",
+            "contents": [
+              {
+                "type": "icon",
+                "url": `${styles.exchangeLogoUrl}`,
+                "size": "lg"
+              },
+              {
+                "type": "text",
+                "text": `${styles.exchangeNm}`,
+                "weight": "bold",
+                "size": "lg",
+                "offsetTop": "-10.5%",
+                "color": `${styles.textColor}`
+              }
+            ],
+            "spacing": "md"
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "ราคาล่าสุด",
+                "size": "sm",
+                "color": "#8c8c8c",
+                "margin": "md",
+                "flex": 0,
+                "align": "start"
+              },
+              {
+                "type": "text",
+                "text": `${data.lastPrice}`,
+                "align": "end",
+                "size": "sm"
+              }
+            ],
+            "justifyContent": "space-between"
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "ราคาสูงสุด",
+                "size": "xs",
+                "color": "#8c8c8c",
+                "margin": "md",
+                "flex": 0,
+                "align": "start"
+              },
+              {
+                "type": "text",
+                "text": `${data.highPrice}`,
+                "align": "end",
+                "size": "xs"
+              }
+            ],
+            "justifyContent": "space-between"
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "ราคาต่ำสุด",
+                "size": "xs",
+                "color": "#8c8c8c",
+                "margin": "md",
+                "flex": 0,
+                "align": "start"
+              },
+              {
+                "type": "text",
+                "text": `${data.lowPrice}`,
+                "align": "end",
+                "size": "xs"
+              }
+            ],
+            "justifyContent": "space-between"
+          },
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "ราคาเปลี่ยนแปลง",
+                "size": "xs",
+                "color": "#8c8c8c",
+                "margin": "md",
+                "flex": 0,
+                "align": "start"
+              },
+              {
+                "type": "text",
+                "text": `${data.changePrice}`,
+                "align": "end",
+                "size": "xs",
+                "color": `${styles.priceChangeColor}`
+              }
+            ],
+            "justifyContent": "space-between"
+          }
+        ],
+        "spacing": "sm",
+        "paddingAll": "13px"
+      },
+      "footer": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "text",
+                "text": "วันที่",
+                "size": "xs",
+                "color": "#aaaaaa",
+                "margin": "md",
+                "flex": 0,
+                "align": "start"
+              },
+              {
+                "type": "text",
+                "align": "end",
+                "size": "xs",
+                "text": `${datetime}`,
+                "color": "#aaaaaa"
+              }
+            ],
+            "justifyContent": "space-between"
+          }
+        ]
+      },
+      "styles": {
+        "header": {
+          "backgroundColor": "#FABEA7"
+        },
+        "hero": {
+          "backgroundColor": "#FABEA7"
+        },
+        "footer": {
+          "separator": true
+        }
+      }
+    }
+    return bubbleMessageTpl
+  }
+
+  flexMessage(bubbleItems: any[]) {
+    return [{
+      "type": "flex",
+      "altText": "CryptoInfo",
+      "contents": {
+        "type": "carousel",
+        "contents":
+          bubbleItems
+      }
+    }]
   }
 }
 
 export default IndexController;
+
+export interface StypeConfig {
+  textColor?: string,
+  exchangeNm?: string,
+  exchangeLogoUrl?: string,
+  priceChangeColor?: string,
+}
