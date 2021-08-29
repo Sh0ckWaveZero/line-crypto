@@ -78,6 +78,10 @@ class IndexController {
       }
       Promise.all(promises)
         .then((items) => {
+          if (_.isUndefined(items[0])) {
+            this.replyNotFound(req)
+            return
+          }
           this.replyRaw(req, exchangeName, items);
         })
         .catch((err) => {
@@ -90,6 +94,10 @@ class IndexController {
       }
       Promise.all(promises)
         .then((items) => {
+          if (_.isUndefined(items[0])) {
+            this.replyNotFound(req)
+            return
+          }
           this.replyRaw(req, exchangeName, items);
         })
         .catch((err) => {
