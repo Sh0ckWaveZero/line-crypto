@@ -5,6 +5,7 @@ interface CryptoInfo {
   lowPrice?: string
   changePrice?: string
   changePriceOriginal?: number
+  urlLogo: string
 }
 
 export default CryptoInfo;

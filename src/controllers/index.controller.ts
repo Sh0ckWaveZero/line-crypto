@@ -459,7 +459,7 @@ class IndexController {
         "contents": [
           {
             "type": "icon",
-            "url": `https://cryptoicon-api.vercel.app/api/icon/${data.currencyName}`,
+            "url": `${data.urlLogo}`,
             "size": "4xl"
           }
         ],

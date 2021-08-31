@@ -146,7 +146,7 @@ export class ExchangeService {
     }
   }
 
-  private mapCryptoInfo(exchange: string, currencyName: any, lastPrice: any, highPrice: any, lowPrice: any, changePrice: any): CryptoInfo {
+  private async mapCryptoInfo(exchange: string, currencyName: any, lastPrice: any, highPrice: any, lowPrice: any, changePrice: any): Promise<CryptoInfo> {
     const regex = new RegExp(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g)
     return {
       currencyName: currencyName,
@@ -154,7 +154,19 @@ export class ExchangeService {
       highPrice: (exchange === 'bn' ? '$ ' : '฿ ') + parseFloat(highPrice).toString().replace(regex, ","),
       lowPrice: (exchange === 'bn' ? '$ ' : '฿ ') + parseFloat(lowPrice).toString().replace(regex, ","),
       changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2) + (exchange === 'bn' || exchange === 'btz' ? '% ' : '฿ '),
-      changePriceOriginal: changePrice
+      changePriceOriginal: changePrice,
+      urlLogo: await this.getCurrencyLogo(currencyName.toLowerCase())
+    }
+  }
+
+  private getCurrencyLogo = async (currencyName: string): Promise<any> => {
+    try {
+      const response = await axios.get(
+        `https://lcw.nyc3.cdn.digitaloceanspaces.com/production/currencies/64/${currencyName}.webp`
+      );
+      return response.config.url
+    } catch (error) {
+      return 'https://cryptoicon-api.vercel.app/api/icon/notfound'
     }
   }
 
