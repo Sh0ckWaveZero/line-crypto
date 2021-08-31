@@ -515,8 +515,9 @@ class IndexController {
               {
                 "type": "text",
                 "text": "ราคาล่าสุด",
-                "size": "sm",
+                "size": "lg",
                 "color": "#8c8c8c",
+                "weight": "bold",
                 "margin": "md",
                 "flex": 0,
                 "align": "start"
@@ -525,7 +526,8 @@ class IndexController {
                 "type": "text",
                 "text": `${data.lastPrice}`,
                 "align": "end",
-                "size": "sm"
+                "weight": "bold",
+                "size": "md"
               }
             ],
             "justifyContent": "space-between"

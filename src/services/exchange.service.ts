@@ -148,7 +148,7 @@ export class ExchangeService {
       lastPrice: (exchange === 'bn' ? '$ ' : '฿ ') + parseFloat(lastPrice).toString().replace(regex, ","),
       highPrice: (exchange === 'bn' ? '$ ' : '฿ ') + parseFloat(highPrice).toString().replace(regex, ","),
       lowPrice: (exchange === 'bn' ? '$ ' : '฿ ') + parseFloat(lowPrice).toString().replace(regex, ","),
-      changePrice: (exchange === 'bn' ? '$ ' : '฿ ') + parseFloat(changePrice).toFixed(2).toString().replace(regex, ","),
+      changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2) + (exchange === 'bn' || exchange === 'btz' ? '% ' : '฿ '),
       changePriceOriginal: changePrice
     }
   }
