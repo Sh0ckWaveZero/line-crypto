@@ -4,7 +4,8 @@ import CryptoInfo from "interfaces/crypto.interface";
 
 export class ExchangeService {
 
-  getBitkub = async (currency: any): Promise<CryptoInfo> => {
+  getBitkub = async (_currency: any): Promise<CryptoInfo> => {
+    const currency = _currency === 'หมา' ? 'doge' : _currency
     const response: any = await this.bitkub(currency)
     if (_.isEmpty(response)) return
     return this.mapCryptoInfo(
@@ -17,7 +18,8 @@ export class ExchangeService {
     )
   }
 
-  getSatangcorp = async (currency: any): Promise<CryptoInfo> => {
+  getSatangcorp = async (_currency: any): Promise<CryptoInfo> => {
+    const currency = _currency === 'หมา' ? 'doge' : _currency
     const response: any = await this.satangcorp(currency)
     if (_.isEmpty(response)) return
     return this.mapCryptoInfo(
@@ -30,7 +32,8 @@ export class ExchangeService {
     )
   }
 
-  getBitazza = async (currency: string): Promise<CryptoInfo> => {
+  getBitazza = async (_currency: string): Promise<CryptoInfo> => {
+    const currency = _currency === 'หมา' ? 'doge' : _currency
     const response: any = await this.bitazza(currency)
     if (_.isEmpty(response)) return
     return this.mapCryptoInfo(
@@ -43,7 +46,8 @@ export class ExchangeService {
     )
   }
 
-  getBinance = async (currency: string): Promise<CryptoInfo> => {
+  getBinance = async (_currency: string): Promise<CryptoInfo> => {
+    const currency = _currency === 'หมา' ? 'doge' : _currency
     const response: any = await this.binance(currency)
     if (_.isEmpty(response)) return
     return this.mapCryptoInfo(
@@ -56,7 +60,8 @@ export class ExchangeService {
     )
   }
 
-  getDeficurrency = async (currency: string): Promise<any> => {
+  getDeficurrency = async (_currency: string): Promise<any> => {
+    const currency = _currency === 'หมา' ? 'doge' : _currency
     let obj: CryptoInfo
     const response: any = await this.defi(currency).then((item: any) => {
       if (_.isEmpty(item)) return
@@ -67,9 +72,8 @@ export class ExchangeService {
     return obj
   }
 
-  private bitkub = async (_currencyName: string): Promise<any> => {
+  private bitkub = async (currencyName: string): Promise<any> => {
     try {
-      const currencyName = _currencyName === 'หมา' ? 'doge' : _currencyName
       const response: any = await axios.get(`https://api.bitkub.com/api/market/ticker?sym=THB_${currencyName.toUpperCase()}`)
       for (let key of Object.keys(response.data)) {
         let value = response.data[key];
@@ -80,9 +84,8 @@ export class ExchangeService {
     }
   }
 
-  private binance = async (_currencyName: string): Promise<any> => {
+  private binance = async (currencyName: string): Promise<any> => {
     try {
-      const currencyName = _currencyName === 'หมา' ? 'doge' : _currencyName
       return await axios.get(
         `https://api.binance.com/api/v3/ticker/24hr?symbol=${currencyName.toUpperCase()}USDT`
       ).then((item: any) => {
@@ -93,9 +96,8 @@ export class ExchangeService {
     }
   }
 
-  private bitazza = async (_currencyName: string): Promise<any> => {
+  private bitazza = async (currencyName: string): Promise<any> => {
     try {
-      const currencyName = _currencyName === 'หมา' ? 'doge' : _currencyName
       const response = await axios.get(
         `https://apexapi.bitazza.com:8443/AP/summary`
       );
@@ -133,9 +135,8 @@ export class ExchangeService {
     }
   }
 
-  private satangcorp = async (_currencyName: string): Promise<any> => {
+  private satangcorp = async (currencyName: string): Promise<any> => {
     try {
-      const currencyName = _currencyName === 'หมา' ? 'doge' : _currencyName
       const response = await axios.get(
         `https://satangcorp.com/api/v3/ticker/24hr?symbol=${currencyName}_thb`
       );
