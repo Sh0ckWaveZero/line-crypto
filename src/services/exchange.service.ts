@@ -67,8 +67,9 @@ export class ExchangeService {
     return obj
   }
 
-  private bitkub = async (currencyName: string): Promise<any> => {
+  private bitkub = async (_currencyName: string): Promise<any> => {
     try {
+      const currencyName = _currencyName === 'หมา' ? 'doge' : _currencyName
       const response: any = await axios.get(`https://api.bitkub.com/api/market/ticker?sym=THB_${currencyName.toUpperCase()}`)
       for (let key of Object.keys(response.data)) {
         let value = response.data[key];
@@ -79,10 +80,11 @@ export class ExchangeService {
     }
   }
 
-  private binance = async (message: string): Promise<any> => {
+  private binance = async (_currencyName: string): Promise<any> => {
     try {
+      const currencyName = _currencyName === 'หมา' ? 'doge' : _currencyName
       return await axios.get(
-        `https://api.binance.com/api/v3/ticker/24hr?symbol=${message.toUpperCase()}USDT`
+        `https://api.binance.com/api/v3/ticker/24hr?symbol=${currencyName.toUpperCase()}USDT`
       ).then((item: any) => {
         return item.data
       })
@@ -91,14 +93,15 @@ export class ExchangeService {
     }
   }
 
-  private bitazza = async (message: string): Promise<any> => {
+  private bitazza = async (_currencyName: string): Promise<any> => {
     try {
+      const currencyName = _currencyName === 'หมา' ? 'doge' : _currencyName
       const response = await axios.get(
         `https://apexapi.bitazza.com:8443/AP/summary`
       );
       for (let key in response.data) {
         let value = response.data[key];
-        if (value.trading_pairs === `${message.toUpperCase()}_THB`) {
+        if (value.trading_pairs === `${currencyName.toUpperCase()}_THB`) {
           return value
         }
       }
@@ -130,8 +133,9 @@ export class ExchangeService {
     }
   }
 
-  private satangcorp = async (currencyName: string): Promise<any> => {
+  private satangcorp = async (_currencyName: string): Promise<any> => {
     try {
+      const currencyName = _currencyName === 'หมา' ? 'doge' : _currencyName
       const response = await axios.get(
         `https://satangcorp.com/api/v3/ticker/24hr?symbol=${currencyName}_thb`
       );
