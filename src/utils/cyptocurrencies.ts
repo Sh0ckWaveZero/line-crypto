@@ -1,22 +1,22 @@
-const cryptocurrenciesList = [
+const cryptoCurrenciesList = [
   {
     "symbol_th": "หมา",
-    "symbol_eh": "doge"
+    "symbol_en": "doge"
   },
   {
     "symbol_th": "ยาย",
-    "symbol_eh": "iost"
+    "symbol_en": "iost"
   }
 ]
 
 export function mapSymbolsThai(symbols: string): string {
-  const currency: string = cryptocurrenciesList
+  const currency: string = cryptoCurrenciesList
     .filter(
       (item: any) =>
         item.symbol_th === symbols
     ).map(
       (element: any) =>
-        element.symbol_eh
+        element.symbol_en
     )[0] || symbols
   return currency
 }
