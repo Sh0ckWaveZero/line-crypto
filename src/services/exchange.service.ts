@@ -1,11 +1,13 @@
 import axios from "axios";
 import _ from "underscore";
 import CryptoInfo from "interfaces/crypto.interface";
+import { mapSymbolsThai } from "../utils/cyptocurrencies";
+
 
 export class ExchangeService {
 
   getBitkub = async (_currency: any): Promise<CryptoInfo> => {
-    const currency = _currency === 'หมา' ? 'doge' : _currency
+    const currency = mapSymbolsThai(_currency)
     const response: any = await this.bitkub(currency)
     if (_.isEmpty(response)) return
     return this.mapCryptoInfo(
@@ -19,7 +21,7 @@ export class ExchangeService {
   }
 
   getSatangcorp = async (_currency: any): Promise<CryptoInfo> => {
-    const currency = _currency === 'หมา' ? 'doge' : _currency
+    const currency = mapSymbolsThai(_currency)
     const response: any = await this.satangcorp(currency)
     if (_.isEmpty(response)) return
     return this.mapCryptoInfo(
@@ -33,7 +35,7 @@ export class ExchangeService {
   }
 
   getBitazza = async (_currency: string): Promise<CryptoInfo> => {
-    const currency = _currency === 'หมา' ? 'doge' : _currency
+    const currency = mapSymbolsThai(_currency)
     const response: any = await this.bitazza(currency)
     if (_.isEmpty(response)) return
     return this.mapCryptoInfo(
@@ -47,7 +49,7 @@ export class ExchangeService {
   }
 
   getBinance = async (_currency: string): Promise<CryptoInfo> => {
-    const currency = _currency === 'หมา' ? 'doge' : _currency
+    const currency = mapSymbolsThai(_currency)
     const response: any = await this.binance(currency)
     if (_.isEmpty(response)) return
     return this.mapCryptoInfo(
@@ -61,7 +63,7 @@ export class ExchangeService {
   }
 
   getDeficurrency = async (_currency: string): Promise<any> => {
-    const currency = _currency === 'หมา' ? 'doge' : _currency
+    const currency = mapSymbolsThai(_currency)
     let obj: CryptoInfo
     const response: any = await this.defi(currency).then((item: any) => {
       if (_.isEmpty(item)) return
