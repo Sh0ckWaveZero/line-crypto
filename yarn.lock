@@ -798,7 +798,12 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^16.7.2":
+"@types/node@*":
+  version "16.9.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.9.0.tgz#d9512fe037472dcb58931ce19f837348db828a62"
+  integrity sha512-nmP+VR4oT0pJUPFbKE4SXj3Yb4Q/kz3M9dSAO1GGMebRKWHQxLfDNmU/yh3xxCJha3N60nQ/JwXWwOE/ZSEVag==
+
+"@types/node@^16.7.2":
   version "16.7.2"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.7.2.tgz#0465a39b5456b61a04d98bd5545f8b34be340cb7"
   integrity sha512-TbG4TOx9hng8FKxaVrCisdaxKxqEwJ3zwHoCWXZ0Jw6mnvTInpaB99/2Cy4+XxpXtjNv9/TgfGSvZFyfV/t8Fw==
@@ -3263,14 +3268,14 @@ mongodb@4.1.1:
     saslprep "^1.0.0"
 
 mongoose@*:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-6.0.2.tgz#f04bbc5aae83e34910ee8cfe2c3bd87a60a31082"
-  integrity sha512-4zrCcScAItE9aefaPMeG9+IPLaJJ2c8sFLXlLvTVPdArZija10rto61qkzIxmhf6zkDmW2W9bh3DS59KuTPCfQ==
+  version "6.0.5"
+  resolved "https://registry.yarnpkg.com/mongoose/-/mongoose-6.0.5.tgz#42648005d13b49261c757607d1f23761b59a610d"
+  integrity sha512-1MoG52oosjEK8z45DHQVbakP6DJG1sbQI/ZASBW8sZRV+rCaG/pC3L3wWjrsiped/2+uhvanWM9C89F2n6bQ3w==
   dependencies:
     bson "^4.2.2"
     kareem "2.3.2"
     mongodb "4.1.1"
-    mpath "0.8.3"
+    mpath "0.8.4"
     mquery "4.0.0"
     ms "2.1.2"
     regexp-clone "1.0.0"
@@ -3288,10 +3293,10 @@ morgan@^1.10.0:
     on-finished "~2.3.0"
     on-headers "~1.0.2"
 
-mpath@0.8.3:
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/mpath/-/mpath-0.8.3.tgz#828ac0d187f7f42674839d74921970979abbdd8f"
-  integrity sha512-eb9rRvhDltXVNL6Fxd2zM9D4vKBxjVVQNLNijlj7uoXUy19zNDsIif5zR+pWmPCWNKwAtqyo4JveQm4nfD5+eA==
+mpath@0.8.4:
+  version "0.8.4"
+  resolved "https://registry.yarnpkg.com/mpath/-/mpath-0.8.4.tgz#6b566d9581621d9e931dd3b142ed3618e7599313"
+  integrity sha512-DTxNZomBcTWlrMW76jy1wvV37X/cNNxPW1y2Jzd4DZkAaC5ZGsm8bfGfNOthcDuRJujXLqiuS6o3Tpy0JEoh7g==
 
 mquery@4.0.0:
   version "4.0.0"
