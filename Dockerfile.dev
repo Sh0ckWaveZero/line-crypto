@@ -5,7 +5,7 @@ COPY package.json ./
 RUN yarn install
 COPY . .
 
-EXPOSE 4444
+EXPOSE 4325
 
 
 CMD ["yarn", "run", "dev"]
