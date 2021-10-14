@@ -62,6 +62,20 @@ export class ExchangeService {
     )
   }
 
+  getGeteio = async (_currency: string): Promise<CryptoInfo> => {
+    const currency = mapSymbolsThai(_currency)
+    const response: any = await this.geteio(currency)
+    if (_.isEmpty(response)) return
+    return this.mapCryptoInfo(
+      'gate',
+      currency,
+      response.last,
+      response.high_24h,
+      response.low_24h,
+      response.change_percentage,
+    )
+  }
+
   getDeficurrency = async (_currency: string): Promise<any> => {
     const currency = mapSymbolsThai(_currency)
     let obj: CryptoInfo
@@ -100,7 +114,7 @@ export class ExchangeService {
 
   private bitazza = async (currencyName: string): Promise<any> => {
     try {
-      const response = await axios.get(
+      const response: any = await axios.get(
         `https://apexapi.bitazza.com:8443/AP/summary`
       );
       for (let key in response.data) {
@@ -111,6 +125,22 @@ export class ExchangeService {
       }
     } catch (error) {
       console.error('bitazza is error: ', error);
+    }
+  }
+
+  private geteio = async (currencyName: string): Promise<any> => {
+    try {
+      const response: any = await axios.get(
+        `https://api.gateio.ws/api/v4/spot/tickers`
+      );
+      for (let key in response.data) {
+        let value = response.data[key];
+        if (value.currency_pair === `${currencyName.toUpperCase()}_USDT`) {
+          return value
+        }
+      }
+    } catch (error) {
+      console.error('gateio is error: ', error);
     }
   }
 
@@ -152,10 +182,10 @@ export class ExchangeService {
     const regex = new RegExp(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g)
     return {
       currencyName: currencyName,
-      lastPrice: (exchange === 'bn' ? '$ ' : '฿ ') + parseFloat(lastPrice).toString().replace(regex, ","),
-      highPrice: (exchange === 'bn' ? '$ ' : '฿ ') + parseFloat(highPrice).toString().replace(regex, ","),
-      lowPrice: (exchange === 'bn' ? '$ ' : '฿ ') + parseFloat(lowPrice).toString().replace(regex, ","),
-      changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2) + (exchange === 'bn' || exchange === 'btz' ? '% ' : '฿ '),
+      lastPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(lastPrice).toString().replace(regex, ","),
+      highPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(highPrice).toString().replace(regex, ","),
+      lowPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(lowPrice).toString().replace(regex, ","),
+      changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2) + (exchange === 'bn' || exchange === 'gate' || exchange === 'btz' ? '% ' : '฿ '),
       changePriceOriginal: changePrice,
       urlLogo: await this.getCurrencyLogo(currencyName.toLowerCase())
     }

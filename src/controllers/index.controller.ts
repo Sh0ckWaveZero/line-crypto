@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import axios from 'axios'
-import _, { flatten } from 'underscore';
-import { str } from 'envalid';
+import _ from 'underscore';
 import { ExchangeService } from '../services/exchange.service';
 import CryptoInfo from 'interfaces/crypto.interface';
 
@@ -125,6 +124,18 @@ class IndexController {
       for (const index in currency) {
         promises.push(this.exchangeService.getBinance(currency[index]));
       }
+      Promise.all(promises)
+        .then((items) => {
+          this.replyRaw(req, exchangeName, items);
+        })
+        .catch((err) => {
+          console.error(err.message);
+        });
+    } else if (exchangeName === 'gate' || exchangeName === 'gateio') {
+      const promises: any[] = [];
+      currency.forEach((_currency: any) => {
+        promises.push(this.exchangeService.getGeteio(_currency));
+      })
       Promise.all(promises)
         .then((items) => {
           this.replyRaw(req, exchangeName, items);
@@ -304,6 +315,11 @@ class IndexController {
       obj.textColor = '#F0B909'
       obj.exchangeNm = 'Binance'
       obj.exchangeLogoUrl = 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png'
+    }
+    if (exchange === 'gate' || exchange === 'gateio') {
+      obj.textColor = '#CE615E'
+      obj.exchangeNm = 'Gate.io'
+      obj.exchangeLogoUrl = 'https://i.ibb.co/NFbVQNy/Gateio-logo.png'
     }
     return obj;
   }
