@@ -1,4 +1,4 @@
-FROM node:lts-alpine3.14
+FROM node:lts-buster
 
 # SET Timezone (Asia/Bangkok GTM+07:00)
 ENV TZ Asia/Bangkok
