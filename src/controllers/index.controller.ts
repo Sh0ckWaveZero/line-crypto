@@ -4,6 +4,7 @@ import _ from 'underscore';
 import { ExchangeService } from '../services/exchange.service';
 import CryptoInfo from 'interfaces/crypto.interface';
 import * as crypto from 'crypto';
+import { getConsolation } from '../utils/wording';
 
 class IndexController {
   private token = `Bearer ${process.env.LINE_TOKEN}`
@@ -43,23 +44,23 @@ class IndexController {
       }
       return this.handleEvent(req);
     } catch (error) {
+      console.error(error);
       next(error);
     }
   }
 
   public handleEvent(req: Request) {
-    let event = req.body.events[0]
-    switch (event.type) {
-      case 'message':
-        const message = event.message;
-        switch (message.type) {
-          case 'text':
-            return this.handleText(req, message.text);
-          default:
-            throw new Error(`Unknown message: ${JSON.stringify(message)}`);
+    const events = req.body.events;
+    for (const event of events) {
+      if (event.type === 'message') {
+        if (event.message.type === "text") {
+          return this.handleText(req, event.message.text);
+        } else if (event.message.type === 'sticker') {
+          return this.handleSticker(req, event)
+        } else {
+          throw new Error(`Unknown message: ${JSON.stringify(event.message)}`);
         }
-      default:
-        throw new Error(`Unknown event: ${JSON.stringify(event)}`);
+      }
     }
   }
 
@@ -78,6 +79,15 @@ class IndexController {
     })
     this.handleCommand(exchangeName, currency, req)
   }
+
+  public handleSticker(req: Request, event: any) {
+    // console.log("🚀 ~event.message ", event.message)
+    if (event.message.keywords.includes('Sad' || 'Crying' || 'Tears' || 'anguish')) {
+      const text = getConsolation()
+      this.sendMessage(req, [{ type: "text", text: text }])
+    }
+  }
+
 
   async handleCommand(_exchangeName: string, currency: any[], req: Request) {
     const exchangeName = _exchangeName.toLowerCase()
