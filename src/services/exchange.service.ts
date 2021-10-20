@@ -1,7 +1,7 @@
 import axios from "axios";
 import _ from "underscore";
 import CryptoInfo from "interfaces/crypto.interface";
-import { mapSymbolsThai } from "../utils/cyptocurrencies";
+import { getCurrencyLogo, mapSymbolsThai } from "../utils/cyptocurrencies";
 
 
 export class ExchangeService {
@@ -187,19 +187,7 @@ export class ExchangeService {
       lowPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(lowPrice).toString().replace(regex, ","),
       changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2) + (exchange === 'bn' || exchange === 'gate' || exchange === 'btz' ? '% ' : '฿ '),
       changePriceOriginal: changePrice,
-      urlLogo: await this.getCurrencyLogo(currencyName.toLowerCase())
+      urlLogo: await getCurrencyLogo(currencyName.toLowerCase())
     }
   }
-
-  private getCurrencyLogo = async (currencyName: string): Promise<any> => {
-    try {
-      const response = await axios.get(
-        `https://lcw.nyc3.cdn.digitaloceanspaces.com/production/currencies/64/${currencyName}.webp`
-      );
-      return response.config.url
-    } catch (error) {
-      return 'https://cryptoicon-api.vercel.app/api/icon/notfound'
-    }
-  }
-
 }
