@@ -1,4 +1,4 @@
-FROM node:lts-buster
+FROM arm32v7/node:lts-buster
 
 # SET Timezone (Asia/Bangkok GTM+07:00)
 ENV TZ Asia/Bangkok

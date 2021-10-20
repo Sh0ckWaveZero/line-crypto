@@ -6,12 +6,8 @@ import * as hpp from 'hpp';
 import * as logger from 'morgan';
 import Routes from './interfaces/routes.interface';
 import errorMiddleware from './middlewares/error.middleware';
-import { middleware, MiddlewareConfig } from '@line/bot-sdk';
 
-const config: MiddlewareConfig = {
-  channelAccessToken: process.env.LINE_TOKEN,
-  channelSecret: process.env.LINE_CHANNEL_SECRET
-}
+
 class App {
   public app: express.Application;
   public port: (string | number);
@@ -47,7 +43,6 @@ class App {
       this.app.use(logger('dev'));
       this.app.use(cors({ origin: true, credentials: true }));
     }
-    this.app.use(middleware(config))
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
