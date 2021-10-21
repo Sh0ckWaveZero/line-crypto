@@ -1613,6 +1613,7 @@ const cmcCurrenciesLogoList = [
   { 'id': '2689', 'name': 'RBLX' },
   { 'id': '2690', 'name': 'BTRN' },
   { 'id': '2691', 'name': 'PNT' },
+  { 'id': '12687', 'name': 'LAZIO' },
 ]
 
 export function mapSymbolsThai(symbols: string): string {
@@ -1633,7 +1634,7 @@ export async function getCurrencyLogo(currencyName: string): Promise<any> {
     const currencyId: string = cmcCurrenciesLogoList
       .filter((item: any) => item.name === currencyName.toLocaleUpperCase())
       .map((element: any) => element.id)[0]
-    const cmcCurrenciesLogo = `https://s2.coinmarketcap.com/static/img/coins/64x64/${currencyId}.png`
+    const cmcCurrenciesLogo = `https://s2.coinmarketcap.com/static/img/coins/128x128/${currencyId}.png`
     const response = await axios.get(
       `https://lcw.nyc3.cdn.digitaloceanspaces.com/production/currencies/64/${currencyName}.webp`
     );
