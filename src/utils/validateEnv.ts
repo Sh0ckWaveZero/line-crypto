@@ -9,6 +9,7 @@ function validateEnv() {
     LINE_GET_CONTENT: str(),
     X_APT_KEY: str(),
     LINE_TOKEN: str(),
+    IQAIR_KEY: str(),
   });
 }
 

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import axios from 'axios'
 import _ from 'underscore';
 import { ExchangeService } from '../services/exchange.service';
+import { AirvisualService } from '../services/airvisual.service';
 import CryptoInfo from 'interfaces/crypto.interface';
 import * as crypto from 'crypto';
 import { getConsolation } from '../utils/wording';
@@ -16,10 +17,17 @@ class IndexController {
   };
 
   private exchangeService = new ExchangeService()
+  private airvisualService = new AirvisualService()
 
   public index = (req: Request, res: Response, next: NextFunction) => {
     try {
-      res.sendStatus(200);
+
+      console.log(`STATUS: ${res.statusCode}`);
+      if (res.statusCode == 200) {
+        res.sendStatus(200);
+      } else {
+        process.exit(1);
+      }
     } catch (error) {
       next(error);
     }
@@ -57,6 +65,8 @@ class IndexController {
           return this.handleText(req, event.message.text);
         } else if (event.message.type === 'sticker') {
           return this.handleSticker(req, event)
+        } else if (event.message.type === 'location') {
+          return this.handleLocation(req, event)
         } else {
           throw new Error(`Unknown message: ${JSON.stringify(event.message)}`);
         }
@@ -88,6 +98,15 @@ class IndexController {
     }
   }
 
+  public async handleLocation(req: Request, event: any) {
+    try {
+      const location: any = await this.airvisualService.getNearestCity(event.message.latitude, event.message.longitude)
+      const msg = this.airvisualService.getNearestCityBubble(location.data.current.pollution.aqius, location.data.current.pollution.ts)
+      this.sendMessage(req, this.flexMessage(msg));
+    } catch (err) {
+      console.log(err.message);
+    }
+  }
 
   async handleCommand(_exchangeName: string, currency: any[], req: Request) {
     const exchangeName = _exchangeName.toLowerCase()
