@@ -185,7 +185,7 @@ export class ExchangeService {
       lastPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(lastPrice).toString().replace(regex, ","),
       highPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(highPrice).toString().replace(regex, ","),
       lowPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(lowPrice).toString().replace(regex, ","),
-      changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2) + (exchange === 'bn' || exchange === 'gate' || exchange === 'btz' ? '% ' : '฿ '),
+      changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2).toString().replace(regex, ",") + (exchange === 'bn' || exchange === 'gate' || exchange === 'btz' ? '% ' : '฿ '),
       changePriceOriginal: changePrice,
       urlLogo: await getCurrencyLogo(currencyName.toLowerCase())
     }
