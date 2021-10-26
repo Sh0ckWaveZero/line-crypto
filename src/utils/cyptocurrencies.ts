@@ -1613,6 +1613,7 @@ const cmcCurrenciesLogoList = [
   { id: '2689', name: 'RBLX' },
   { id: '2690', name: 'BTRN' },
   { id: '2691', name: 'PNT' },
+  { id: '9119', name: 'TLM' },
   { id: '12687', name: 'LAZIO' },
 ]
 
