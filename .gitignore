@@ -1,10 +1,7 @@
 node_modules
 .env
 yarn.lock
-.yarn/*
-!.yarn/patches
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
-.pnp.*
+.yarn
+.pnp.cjs
+.pnp.loader.mjs
+.yarnrc.yml
