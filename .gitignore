@@ -2,6 +2,3 @@ node_modules
 .env
 yarn.lock
 .yarn
-.pnp.cjs
-.pnp.loader.mjs
-.yarnrc.yml
