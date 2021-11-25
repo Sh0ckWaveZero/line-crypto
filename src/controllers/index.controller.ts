@@ -195,7 +195,7 @@ class IndexController {
         .catch((err) => {
           console.error(err.message);
         });
-    } else if (exchangeName === 'mexc') {
+    } else if (exchangeName === 'mexc' || exchangeName === 'mx') {
       const promises: any[] = [];
       currency.forEach((_currency: any) => {
         promises.push(this.exchangeService.getMexc(_currency));
@@ -390,7 +390,7 @@ class IndexController {
       obj.exchangeNm = 'FTX'
       obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/524.png'
     }
-    if (exchange === 'mexc') {
+    if (exchange === 'mexc' || exchange === 'mx') {
       obj.textColor = '#47DC90'
       obj.exchangeNm = 'MEXC'
       obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/544.png'

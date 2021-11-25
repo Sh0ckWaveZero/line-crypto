@@ -93,7 +93,6 @@ export class ExchangeService {
   getMexc = async (_currency: string): Promise<CryptoInfo> => {
     const currency = mapSymbolsThai(_currency)
     const response: any = await this.mexc(currency)
-    console.log("🚀 ~ file: exchange.service.ts ~ line 96 ~ ExchangeService ~ getMexc= ~ response", response)
     if (_.isEmpty(response)) return
     return this.mapCryptoInfo(
       'mexc',
