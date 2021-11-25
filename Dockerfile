@@ -7,7 +7,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Copy package.json for install libraries
 WORKDIR /usr/src/app/linebot-crypto
 COPY package.json ./
-RUN yarn set version berry && yarn install
+RUN yarn set version stable && yarn install
 COPY . .
 
 EXPOSE 4325
