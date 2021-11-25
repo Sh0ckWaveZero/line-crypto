@@ -195,6 +195,18 @@ class IndexController {
         .catch((err) => {
           console.error(err.message);
         });
+    } else if (exchangeName === 'mexc') {
+      const promises: any[] = [];
+      currency.forEach((_currency: any) => {
+        promises.push(this.exchangeService.getMexc(_currency));
+      })
+      Promise.all(promises)
+        .then((items) => {
+          this.replyRaw(req, exchangeName, items);
+        })
+        .catch((err) => {
+          console.error(err.message);
+        });
     } else if (exchangeName === 'defi') {
 
     }
@@ -377,6 +389,11 @@ class IndexController {
       obj.textColor = '#2BB4CA'
       obj.exchangeNm = 'FTX'
       obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/524.png'
+    }
+    if (exchange === 'mexc') {
+      obj.textColor = '#47DC90'
+      obj.exchangeNm = 'MEXC'
+      obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/544.png'
     }
     return obj;
   }

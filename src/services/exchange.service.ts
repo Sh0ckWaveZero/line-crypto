@@ -90,6 +90,21 @@ export class ExchangeService {
     )
   }
 
+  getMexc = async (_currency: string): Promise<CryptoInfo> => {
+    const currency = mapSymbolsThai(_currency)
+    const response: any = await this.mexc(currency)
+    console.log("🚀 ~ file: exchange.service.ts ~ line 96 ~ ExchangeService ~ getMexc= ~ response", response)
+    if (_.isEmpty(response)) return
+    return this.mapCryptoInfo(
+      'mexc',
+      currency,
+      response.last,
+      response.high,
+      response.low,
+      response.change_rate,
+    )
+  }
+
   getDeficurrency = async (_currency: string): Promise<any> => {
     const currency = mapSymbolsThai(_currency)
     let obj: CryptoInfo
@@ -169,6 +184,17 @@ export class ExchangeService {
     }
   }
 
+  private mexc = async (currencyName: string): Promise<any> => {
+    try {
+      const response: any = await axios.get(
+        `https://www.mexc.com/open/api/v2/market/ticker?symbol=${currencyName}_USDT`
+      );
+      return response.data.data[0]
+    } catch (error) {
+      console.error('mexc is error: ', error);
+    }
+  }
+
   private defi = async (message: string): Promise<any> => {
     try {
       const data = JSON.stringify({
@@ -205,11 +231,12 @@ export class ExchangeService {
 
   private async mapCryptoInfo(exchange: string, currencyName: any, lastPrice: any, highPrice: any, lowPrice: any, changePrice: any): Promise<CryptoInfo> {
     const regex = new RegExp(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g)
+    const isCurrencyThai = (exchange === 'bn' || exchange === 'gate' || exchange === 'ftx' || exchange === 'mexc')
     return {
       currencyName: currencyName,
-      lastPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(lastPrice).toString().replace(regex, ","),
-      highPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(highPrice).toString().replace(regex, ","),
-      lowPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(lowPrice).toString().replace(regex, ","),
+      lastPrice: (isCurrencyThai ? '$ ' : '฿ ') + parseFloat(lastPrice).toString().replace(regex, ","),
+      highPrice: (isCurrencyThai ? '$ ' : '฿ ') + parseFloat(highPrice).toString().replace(regex, ","),
+      lowPrice: (isCurrencyThai ? '$ ' : '฿ ') + parseFloat(lowPrice).toString().replace(regex, ","),
       changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2).toString().replace(regex, ",") + '%',
       changePriceOriginal: changePrice,
       urlLogo: await getCurrencyLogo(currencyName.toLowerCase())
