@@ -183,6 +183,18 @@ class IndexController {
         .catch((err) => {
           console.error(err.message);
         });
+    } else if (exchangeName === 'ftx') {
+      const promises: any[] = [];
+      currency.forEach((_currency: any) => {
+        promises.push(this.exchangeService.getFtx(_currency));
+      })
+      Promise.all(promises)
+        .then((items) => {
+          this.replyRaw(req, exchangeName, items);
+        })
+        .catch((err) => {
+          console.error(err.message);
+        });
     } else if (exchangeName === 'defi') {
 
     }
@@ -336,30 +348,35 @@ class IndexController {
     if (exchange === 'bk' || exchange === 'bitkub') {
       obj.textColor = '#333333'
       obj.exchangeNm = 'bitkub'
-      obj.exchangeLogoUrl = 'https://i.ibb.co/Qr2z2qX/bk.png'
+      obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/436.png'
     }
 
     if (exchange === 'st' || exchange === 'satang') {
       obj.textColor = '#1717d1'
       obj.exchangeNm = 'Satang Pro'
-      obj.exchangeLogoUrl = 'https://i.ibb.co/Df59mGn/st.png'
+      obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/325.png'
     }
 
     if (exchange === 'btz' || exchange === 'bitazza') {
       obj.textColor = '#8FA775'
       obj.exchangeNm = 'Bitazza'
-      obj.exchangeLogoUrl = 'https://i.ibb.co/7Vs6CP9/btz.png'
+      obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/1124.png'
     }
 
     if (exchange === 'bn' || exchange === 'binance') {
       obj.textColor = '#F0B909'
       obj.exchangeNm = 'Binance'
-      obj.exchangeLogoUrl = 'https://cryptologos.cc/logos/binance-coin-bnb-logo.png'
+      obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/270.png'
     }
     if (exchange === 'gate' || exchange === 'gateio') {
       obj.textColor = '#CE615E'
       obj.exchangeNm = 'Gate.io'
-      obj.exchangeLogoUrl = 'https://i.ibb.co/NFbVQNy/Gateio-logo.png'
+      obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/302.png'
+    }
+    if (exchange === 'ftx') {
+      obj.textColor = '#2BB4CA'
+      obj.exchangeNm = 'FTX'
+      obj.exchangeLogoUrl = 'https://s2.coinmarketcap.com/static/img/exchanges/128x128/524.png'
     }
     return obj;
   }

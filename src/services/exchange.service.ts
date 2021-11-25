@@ -76,6 +76,20 @@ export class ExchangeService {
     )
   }
 
+  getFtx = async (_currency: string): Promise<CryptoInfo> => {
+    const currency = mapSymbolsThai(_currency)
+    const response: any = await this.ftx(currency)
+    if (_.isEmpty(response)) return
+    return this.mapCryptoInfo(
+      'ftx',
+      currency,
+      response.price,
+      0,
+      0,
+      response.change24h,
+    )
+  }
+
   getDeficurrency = async (_currency: string): Promise<any> => {
     const currency = mapSymbolsThai(_currency)
     let obj: CryptoInfo
@@ -144,6 +158,17 @@ export class ExchangeService {
     }
   }
 
+  private ftx = async (currencyName: string): Promise<any> => {
+    try {
+      const response: any = await axios.get(
+        `https://ftx.com/api/markets/${currencyName}_USD`
+      );
+      return response.data.result
+    } catch (error) {
+      console.error('FTX is error: ', error);
+    }
+  }
+
   private defi = async (message: string): Promise<any> => {
     try {
       const data = JSON.stringify({
@@ -185,7 +210,7 @@ export class ExchangeService {
       lastPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(lastPrice).toString().replace(regex, ","),
       highPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(highPrice).toString().replace(regex, ","),
       lowPrice: (exchange === 'bn' || exchange === 'gate' ? '$ ' : '฿ ') + parseFloat(lowPrice).toString().replace(regex, ","),
-      changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2).toString().replace(regex, ",") +  '%',
+      changePrice: (changePrice > 0 ? "+" : '') + parseFloat(changePrice).toFixed(2).toString().replace(regex, ",") + '%',
       changePriceOriginal: changePrice,
       urlLogo: await getCurrencyLogo(currencyName.toLowerCase())
     }
