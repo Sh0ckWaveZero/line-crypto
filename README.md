@@ -17,6 +17,11 @@ Install the dependencies for the application:
 ```bash
 npm install
 # or
+
+# Options for upgrading to yarn v3 
+yarn set version berry
+
+# If already or unser yarn v3 
 yarn install
 ```
 
