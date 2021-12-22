@@ -19,7 +19,7 @@
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^10.0.0",
-    "envalid": "^7.2.1",
+    "envalid": "^7.2.2",
     "express": "^4.17.1",
     "helmet": "^4.6.0",
     "hpp": "^0.2.3",
@@ -57,5 +57,5 @@
     "supertest": "^6.1.6",
     "yarn-upgrade-all": "^0.5.4"
   },
-  "packageManager": "yarn@3.1.0"
+  "packageManager": "yarn@3.1.1"
 }

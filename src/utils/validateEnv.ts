@@ -1,4 +1,4 @@
-import { cleanEnv, port, str } from 'envalid';
+import { cleanEnv, port, str } from "envalid";
 
 function validateEnv() {
   cleanEnv(process.env, {
@@ -10,6 +10,7 @@ function validateEnv() {
     X_APT_KEY: str(),
     LINE_TOKEN: str(),
     IQAIR_KEY: str(),
+    CMC_API_KEY: str(),
   });
 }
 
