@@ -6846,6 +6846,8 @@ const cryptoList: any[] = [
   { id: 13470, name: "GFSHIB" },
   { id: 13471, name: "OCP" },
   { id: 11374, name: "DAR" },
+  { id: 15585, name: "GF" },
+  { id: 16093, name: "KUB" },
 ];
 
 export function getCurrencyList() {

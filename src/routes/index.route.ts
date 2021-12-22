@@ -12,7 +12,7 @@ class IndexRoute implements Route {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, this.indexController.index);
+    // this.router.get(`${this.path}`, this.indexController.index);
     this.router.post(`${this.path}webhook`, this.indexController.webhook);
   }
 }

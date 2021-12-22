@@ -19,19 +19,6 @@ class IndexController {
   private exchangeService = new ExchangeService();
   private airvisualService = new AirvisualService();
 
-  public index = (req: Request, res: Response, next: NextFunction) => {
-    try {
-      console.log(`STATUS: ${res.statusCode}`);
-      if (res.statusCode == 200) {
-        res.sendStatus(200);
-      } else {
-        process.exit(1);
-      }
-    } catch (error) {
-      next(error);
-    }
-  };
-
   public webhook = (req: Request, res: Response, next: NextFunction) => {
     try {
       const text = JSON.stringify(req.body);

@@ -15,13 +15,17 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
     working_dir: /usr/src/app/linebot-crypto
     restart: "unless-stopped"
-    
+    healthcheck:
+      test: ["CMD", "curl -f http://localhost:4325/healthcheck || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
     networks:
       - yadom
 
 networks:
   yadom:
-    external: true
+    driver: bridge
 
 volumes:
   dependencies:

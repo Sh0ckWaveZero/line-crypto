@@ -7,9 +7,6 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # Copy package.json for install libraries
 WORKDIR /usr/src/app/linebot-crypto
 COPY package.json ./
-RUN yarn set version stable && yarn install
-
-COPY yarn.lock .yarn .yarnrc.yml ./
 RUN yarn install
 COPY . .
 
