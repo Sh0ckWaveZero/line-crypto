@@ -23,6 +23,9 @@ yarn set version berry
 
 # If already or unser yarn v3 
 yarn install
+
+# VSCode Extension
+yarn dlx @yarnpkg/sdks vscode
 ```
 
 ### 3. Start Line-crypto Server
