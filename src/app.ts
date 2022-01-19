@@ -36,7 +36,21 @@ class App {
   private initializeMiddlewares() {
     if (this.env) {
       this.app.use(hpp());
-      this.app.use(helmet());
+      this.app.use(helmet.contentSecurityPolicy());
+      this.app.use(helmet.crossOriginEmbedderPolicy());
+      this.app.use(helmet.crossOriginOpenerPolicy());
+      this.app.use(helmet.crossOriginResourcePolicy());
+      this.app.use(helmet.dnsPrefetchControl());
+      this.app.use(helmet.expectCt());
+      this.app.use(helmet.frameguard());
+      this.app.use(helmet.hidePoweredBy());
+      this.app.use(helmet.hsts());
+      this.app.use(helmet.ieNoOpen());
+      this.app.use(helmet.noSniff());
+      this.app.use(helmet.originAgentCluster());
+      this.app.use(helmet.permittedCrossDomainPolicies());
+      this.app.use(helmet.referrerPolicy());
+      this.app.use(helmet.xssFilter());
       this.app.use(logger('combined'));
       this.app.use(cors({ origin: process.env.HOSTNAME, credentials: true }));
     } else {

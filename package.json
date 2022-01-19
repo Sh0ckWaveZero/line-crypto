@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "start": "cross-env NODE_ENV=production ts-node --transpile-only src/server.ts",
-    "dev": "cross-env NODE_ENV=development nodemon --watch src --delay 1 --exec 'ts-node' src/server.ts",
+    "dev": "cross-env NODE_ENV=development nodemon --watch src --exec 'ts-node' src/server.ts",
     "test": "jest --forceExit --detectOpenHandles",
     "lint": "tslint -p tsconfig.json -c tslint.json"
   },
@@ -56,6 +56,9 @@
     "nodemon": "^2.0.15",
     "supertest": "^6.2.1",
     "yarn-upgrade-all": "^0.6.1"
+  },
+  "installConfig": {
+    "pnp": true
   },
   "packageManager": "yarn@3.1.1"
 }

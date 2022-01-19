@@ -18,6 +18,8 @@ Install the dependencies for the application:
 npm install
 # or
 
+yarn install
+
 # Options for upgrading to yarn v3 
 yarn set version berry
 
