@@ -997,7 +997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^17.0.8":
+"@types/node@npm:*, @types/node@npm:^17.0.10":
   version: 17.0.10
   resolution: "@types/node@npm:17.0.10"
   checksum: 979e83d642a2b4f18fa1a4233f884822c05abc7acd0836024aa964187f8446432b21f7913e72fe2b3927c4a811c27a0b6cd60ac7c4ac6a6762cfbab70782aa6a
@@ -4549,7 +4549,7 @@ __metadata:
     "@types/jsdom": ^16.2.14
     "@types/jsonwebtoken": ^8.5.7
     "@types/morgan": ^1.9.3
-    "@types/node": ^17.0.8
+    "@types/node": ^17.0.10
     "@types/png.js": ^0.2.1
     "@types/qrcode": ^1.4.2
     "@types/supertest": ^2.0.11
