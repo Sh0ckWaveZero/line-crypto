@@ -6,3 +6,5 @@ node_modules
 .pnp.loader.mjs
 .yarnrc.yml
 ss.yarnrc.yml
+
+config.yml

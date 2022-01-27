@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getCurrencyList } from "./cryptoList";
+import { cryptoList } from "./cryptoList";
 
 const cryptoCurrenciesList = [
   {
@@ -22,7 +22,7 @@ export function mapSymbolsThai(symbols: string): string {
 
 export async function getCurrencyLogo(currencyName: string): Promise<any> {
   try {
-    const currencyId: string = getCurrencyList()
+    const currencyId: string = cryptoList
       .filter((item: any) => item.name === currencyName.toLocaleUpperCase())
       .map((element: any) => element.id)[0];
     const cmcCurrenciesLogo = `https://s2.coinmarketcap.com/static/img/coins/128x128/${currencyId}.png`;

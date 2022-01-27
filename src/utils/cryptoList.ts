@@ -1,3 +1,6 @@
+import { defaults } from "underscore";
+import CryptoInfo from 'interfaces/crypto.interface';
+
 const cryptoList: any[] = [
   { id: 1, name: "BTC" },
   { id: 2, name: "LTC" },
@@ -863,7 +866,7 @@ const cryptoList: any[] = [
   { id: 2865, name: "TRTT" },
   { id: 2866, name: "UPP" },
   { id: 2868, name: "DAG" },
-  { id: 2869, name: "MVP" },
+  // { id: 2869, name: "MVP" },
   { id: 2870, name: "FGC" },
   { id: 2871, name: "UCT" },
   { id: 2873, name: "MET" },
@@ -6851,6 +6854,19 @@ const cryptoList: any[] = [
   { id: 17145, name: "LOKA" },
 ];
 
-export function getCurrencyList() {
-  return cryptoList;
+const i18nList: any[] = [
+  { id: "volume_24h", label: "ปริมาณ 24ชม." },
+  { id: "volume_change_24h", label: "ราคาเปลี่ยนแปลง" },
+  { id: "market_cap", label: "มูลค่าตลาด" },
+  { id: "last_updated", label: "อัพเดทล่าสุด" },
+  { id: "lastPrice", label: "ราคาล่าสุด" },
+  { id: "highPrice", label: "ราคาสูงสุด" },
+  { id: "lowPrice", label: "ราคาต่ำสุด" },
+  { id: "changePrice", label: "ราคาเปลี่ยนแปลง" },
+  { id: "cmc_rank", label: "ลำดับ" },
+]
+
+export {
+  cryptoList,
+  i18nList,
 }

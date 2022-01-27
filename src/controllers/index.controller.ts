@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import axios from "axios";
 import _ from "underscore";
 import { ExchangeService } from "../services/exchange.service";
+import { LineService } from "../services/line.service";
 import { AirvisualService } from "../services/airvisual.service";
 import CryptoInfo from "interfaces/crypto.interface";
 import * as crypto from "crypto";
@@ -18,6 +19,7 @@ class IndexController {
 
   private exchangeService = new ExchangeService();
   private airvisualService = new AirvisualService();
+  private lineService = new LineService();
 
   public webhook = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -208,6 +210,20 @@ class IndexController {
         .catch((err) => {
           console.error(err.message);
         });
+    } else if (exchangeName === "cmc" || exchangeName === "coinmarketcap") {
+      const promises: any[] = [];
+
+      currency.forEach((_currency: any) => {
+        promises.push(this.exchangeService.getCoinMarketCap(_currency));
+      });
+
+      Promise.all(promises)
+        .then((items) => {
+          this.replyRaw(req, exchangeName, items);
+        })
+        .catch((err) => {
+          console.error(err.message);
+        });
     }
     // } else if (exchangeName === "defi") {
     // }
@@ -380,55 +396,7 @@ class IndexController {
     this.sendMessage(req.body.events[0].replyToken, payload);
   };
 
-  exchangeConfig(exchange: string): any {
-    let obj: any = {};
-    if (exchange === "bk" || exchange === "bitkub") {
-      obj.textColor = "#333333";
-      obj.exchangeNm = "bitkub";
-      obj.exchangeLogoUrl =
-        "https://s2.coinmarketcap.com/static/img/exchanges/128x128/436.png";
-    }
 
-    if (exchange === "st" || exchange === "satang") {
-      obj.textColor = "#1717d1";
-      obj.exchangeNm = "Satang Pro";
-      obj.exchangeLogoUrl =
-        "https://s2.coinmarketcap.com/static/img/exchanges/128x128/325.png";
-    }
-
-    if (exchange === "btz" || exchange === "bitazza") {
-      obj.textColor = "#8FA775";
-      obj.exchangeNm = "Bitazza";
-      obj.exchangeLogoUrl =
-        "https://s2.coinmarketcap.com/static/img/exchanges/128x128/1124.png";
-    }
-
-    if (exchange === "bn" || exchange === "binance") {
-      obj.textColor = "#F0B909";
-      obj.exchangeNm = "Binance";
-      obj.exchangeLogoUrl =
-        "https://s2.coinmarketcap.com/static/img/exchanges/128x128/270.png";
-    }
-    if (exchange === "gate" || exchange === "gateio") {
-      obj.textColor = "#CE615E";
-      obj.exchangeNm = "Gate.io";
-      obj.exchangeLogoUrl =
-        "https://s2.coinmarketcap.com/static/img/exchanges/128x128/302.png";
-    }
-    if (exchange === "ftx") {
-      obj.textColor = "#2BB4CA";
-      obj.exchangeNm = "FTX";
-      obj.exchangeLogoUrl =
-        "https://s2.coinmarketcap.com/static/img/exchanges/128x128/524.png";
-    }
-    if (exchange === "mexc" || exchange === "mx") {
-      obj.textColor = "#47DC90";
-      obj.exchangeNm = "MEXC";
-      obj.exchangeLogoUrl =
-        "https://s2.coinmarketcap.com/static/img/exchanges/128x128/544.png";
-    }
-    return obj;
-  }
 
   private replyNotFound(req: Request) {
     const msg = [
@@ -524,8 +492,6 @@ class IndexController {
     cryptoInfoItems: CryptoInfo[]
   ) => {
     let priceChangeColor: string = "";
-    const { textColor, exchangeNm, exchangeLogoUrl } =
-      this.exchangeConfig(exchange);
     let stylesConfig: StypeConfig = {};
     let bubbleItems: any[] = [];
     for (const index in cryptoInfoItems) {
@@ -534,14 +500,8 @@ class IndexController {
       } else {
         priceChangeColor = "#F74C6C";
       }
-      stylesConfig = {
-        textColor,
-        exchangeNm,
-        exchangeLogoUrl,
-        priceChangeColor,
-      };
       bubbleItems.push(
-        this.bubbleMessage(cryptoInfoItems[index], stylesConfig)
+        this.bubbleMessage(cryptoInfoItems[index])
       );
     }
 
@@ -572,12 +532,17 @@ class IndexController {
     }
   };
 
-  bubbleMessage(data: CryptoInfo, styles: StypeConfig): any {
-    let datetime = new Date().toLocaleString("th-TH", {
-      timeZone: "Asia/Bangkok",
-      hour12: false,
-    });
+  bubbleMessage(data: CryptoInfo): any {
     let bubbleMessageTpl = {};
+
+    const boxOne = data.highPrice ?
+      this.lineService.createBubbleBox("ราคาสูงสุด", data.highPrice) :
+      this.lineService.createBubbleBox("ปริมาณ 24ชม.", data.volume_24h);
+
+    const boxTwo = data.lowPrice ?
+      this.lineService.createBubbleBox("ราคาต่ำสุด", data.lowPrice) :
+      this.lineService.createBubbleBox("ลำดับที่", data.cmc_rank || "-");
+    const boxThree = this.lineService.createBubbleBox("ราคาเปลี่ยนแปลง", data.volume_change_24h, data.priceChangeColor);
     bubbleMessageTpl = {
       type: "bubble",
       size: "mega",
@@ -602,7 +567,7 @@ class IndexController {
         contents: [
           {
             type: "text",
-            text: `${data.currencyName.toUpperCase()}`,
+            text: `${data.currencyName}`,
             align: "center",
             size: "xxl",
             weight: "bold",
@@ -622,16 +587,16 @@ class IndexController {
             contents: [
               {
                 type: "icon",
-                url: `${styles.exchangeLogoUrl}`,
+                url: `${data.exchangeLogoUrl}`,
                 size: "lg",
               },
               {
                 type: "text",
-                text: `${styles.exchangeNm}`,
+                text: `${data.exchange}`,
                 weight: "bold",
                 size: "lg",
                 offsetTop: "-10.5%",
-                color: `${styles.textColor}`,
+                color: `${data.textColor}`,
               },
             ],
             spacing: "md",
@@ -660,73 +625,9 @@ class IndexController {
             ],
             justifyContent: "space-between",
           },
-          {
-            type: "box",
-            layout: "horizontal",
-            contents: [
-              {
-                type: "text",
-                text: "ราคาสูงสุด",
-                size: "xs",
-                color: "#8c8c8c",
-                margin: "md",
-                flex: 0,
-                align: "start",
-              },
-              {
-                type: "text",
-                text: `${data.highPrice}`,
-                align: "end",
-                size: "xs",
-              },
-            ],
-            justifyContent: "space-between",
-          },
-          {
-            type: "box",
-            layout: "horizontal",
-            contents: [
-              {
-                type: "text",
-                text: "ราคาต่ำสุด",
-                size: "xs",
-                color: "#8c8c8c",
-                margin: "md",
-                flex: 0,
-                align: "start",
-              },
-              {
-                type: "text",
-                text: `${data.lowPrice}`,
-                align: "end",
-                size: "xs",
-              },
-            ],
-            justifyContent: "space-between",
-          },
-          {
-            type: "box",
-            layout: "horizontal",
-            contents: [
-              {
-                type: "text",
-                text: "ราคาเปลี่ยนแปลง",
-                size: "xs",
-                color: "#8c8c8c",
-                margin: "md",
-                flex: 0,
-                align: "start",
-              },
-              {
-                type: "text",
-                text: `${data.changePrice}`,
-                align: "end",
-                size: "xs",
-                color: `${styles.priceChangeColor}`,
-              },
-            ],
-            justifyContent: "space-between",
-          },
+          boxOne,
+          boxTwo,
+          boxThree,
         ],
         spacing: "sm",
         paddingAll: "13px",
@@ -752,7 +653,7 @@ class IndexController {
                 type: "text",
                 align: "end",
                 size: "xs",
-                text: `${datetime}`,
+                text: `${data.last_updated}`,
                 color: "#aaaaaa",
               },
             ],
