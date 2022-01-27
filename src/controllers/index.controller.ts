@@ -114,74 +114,39 @@ class IndexController {
       for (const index in currency) {
         promises.push(this.exchangeService.getBitkub(currency[index]));
       }
-      Promise.all(promises)
-        .then((items) => {
-          if (_.isUndefined(items[0])) {
-            this.replyNotFound(req);
-            return;
-          }
-          this.replyRaw(req, exchangeName, items);
-        })
-        .catch((err) => {
-          console.error(err.message);
-        });
+      await this.getFlexMessage(req, promises);
+
     } else if (exchangeName === "st" || exchangeName === "satang") {
       const promises: any[] = [];
+
       for (const index in currency) {
         promises.push(this.exchangeService.getSatangcorp(currency[index]));
       }
-      Promise.all(promises)
-        .then((items) => {
-          if (_.isUndefined(items[0])) {
-            this.replyNotFound(req);
-            return;
-          }
-          this.replyRaw(req, exchangeName, items);
-        })
-        .catch((err) => {
-          console.error(err.message);
-        });
+      await this.getFlexMessage(req, promises);
+
     } else if (exchangeName === "btz" || exchangeName === "bitazza") {
       const promises: any[] = [];
+
       for (const index in currency) {
         promises.push(this.exchangeService.getBitazza(currency[index]));
       }
+      await this.getFlexMessage(req, promises);
 
-      Promise.all(promises)
-        .then((items) => {
-          if (_.isUndefined(items[0])) {
-            this.replyNotFound(req);
-            return;
-          }
-          this.replyRaw(req, exchangeName, items);
-        })
-        .catch((err) => {
-          console.error(err.message);
-        });
     } else if (exchangeName === "bn" || exchangeName === "binance") {
       const promises: any[] = [];
       for (const index in currency) {
         promises.push(this.exchangeService.getBinance(currency[index]));
       }
-      Promise.all(promises)
-        .then((items) => {
-          this.replyRaw(req, exchangeName, items);
-        })
-        .catch((err) => {
-          console.error(err.message);
-        });
-    } else if (exchangeName === "gate" || exchangeName === "gateio") {
+      await this.getFlexMessage(req, promises);
+    } else if (exchangeName === "gate" || exchangeName === "gateio" || exchangeName === "gt") {
       const promises: any[] = [];
+
       currency.forEach((_currency: any) => {
         promises.push(this.exchangeService.getGeteio(_currency));
       });
-      Promise.all(promises)
-        .then((items) => {
-          this.replyRaw(req, exchangeName, items);
-        })
-        .catch((err) => {
-          console.error(err.message);
-        });
+
+      await this.getFlexMessage(req, promises);
+
     } else if (exchangeName === "ftx") {
       const promises: any[] = [];
 
@@ -189,13 +154,8 @@ class IndexController {
         promises.push(this.exchangeService.getFtx(_currency));
       });
 
-      Promise.all(promises)
-        .then((items) => {
-          this.replyRaw(req, exchangeName, items);
-        })
-        .catch((err) => {
-          console.error(err.message);
-        });
+      await this.getFlexMessage(req, promises);
+
     } else if (exchangeName === "mexc" || exchangeName === "mx") {
       const promises: any[] = [];
 
@@ -203,13 +163,8 @@ class IndexController {
         promises.push(this.exchangeService.getMexc(_currency));
       });
 
-      Promise.all(promises)
-        .then((items) => {
-          this.replyRaw(req, exchangeName, items);
-        })
-        .catch((err) => {
-          console.error(err.message);
-        });
+      await this.getFlexMessage(req, promises);
+
     } else if (exchangeName === "cmc" || exchangeName === "coinmarketcap") {
       const promises: any[] = [];
 
@@ -217,16 +172,24 @@ class IndexController {
         promises.push(this.exchangeService.getCoinMarketCap(_currency));
       });
 
-      Promise.all(promises)
-        .then((items) => {
-          this.replyRaw(req, exchangeName, items);
-        })
-        .catch((err) => {
-          console.error(err.message);
-        });
+      await this.getFlexMessage(req, promises);
     }
     // } else if (exchangeName === "defi") {
     // }
+  }
+
+  async getFlexMessage(req: any, data: any) {
+    return await Promise.all(data)
+      .then((items) => {
+        if (_.isUndefined(items[0])) {
+          this.replyNotFound(req);
+          return;
+        }
+        this.replyRaw(req, items);
+      })
+      .catch((err) => {
+        console.error(err.message);
+      });
   }
 
   public replyRawDeFi = (req: Request, currency: any, item: any) => {
@@ -488,18 +451,11 @@ class IndexController {
 
   public replyRaw = async (
     req: Request,
-    exchange: any,
     cryptoInfoItems: CryptoInfo[]
   ) => {
-    let priceChangeColor: string = "";
-    let stylesConfig: StypeConfig = {};
+
     let bubbleItems: any[] = [];
     for (const index in cryptoInfoItems) {
-      if (cryptoInfoItems[index].changePriceOriginal > 0) {
-        priceChangeColor = "#00D666";
-      } else {
-        priceChangeColor = "#F74C6C";
-      }
       bubbleItems.push(
         this.bubbleMessage(cryptoInfoItems[index])
       );

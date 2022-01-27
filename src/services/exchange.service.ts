@@ -141,8 +141,8 @@ export class ExchangeService {
   getCoinMarketCap = async (_currency: string): Promise<CryptoInfo> => {
     const currency = mapSymbolsThai(_currency);
     const response: any = await this.cmc(currency);
-    const quote = response.quote.USD;
     if (_.isEmpty(response)) return;
+    const quote = response.quote.USD;
     return {
       exchange: "CoinMarketCap",
       exchangeLogoUrl: "https://coinmarketcap.com/apple-touch-icon.png",
