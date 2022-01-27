@@ -6854,19 +6854,6 @@ const cryptoList: any[] = [
   { id: 17145, name: "LOKA" },
 ];
 
-const i18nList: any[] = [
-  { id: "volume_24h", label: "ปริมาณ 24ชม." },
-  { id: "volume_change_24h", label: "ราคาเปลี่ยนแปลง" },
-  { id: "market_cap", label: "มูลค่าตลาด" },
-  { id: "last_updated", label: "อัพเดทล่าสุด" },
-  { id: "lastPrice", label: "ราคาล่าสุด" },
-  { id: "highPrice", label: "ราคาสูงสุด" },
-  { id: "lowPrice", label: "ราคาต่ำสุด" },
-  { id: "changePrice", label: "ราคาเปลี่ยนแปลง" },
-  { id: "cmc_rank", label: "ลำดับ" },
-]
-
 export {
   cryptoList,
-  i18nList,
 }

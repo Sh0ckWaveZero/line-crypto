@@ -311,33 +311,6 @@ export class ExchangeService {
     }
   };
 
-  private async mapCryptoInfo(
-    exchange: string,
-    currencyName: any,
-    lastPrice: any,
-    highPrice: any,
-    lowPrice: any,
-    changePrice: any
-  ): Promise<CryptoInfo> {
-    const isSymbol =
-      exchange === "bn" ||
-      exchange === "gate" ||
-      exchange === "ftx" ||
-      exchange === "cmc" ||
-      exchange === "CoinMarketCap" ||
-      exchange === "mexc";
-    const symbol = isSymbol ? "$ " : "฿ "
-    return {
-      currencyName: currencyName,
-      lastPrice: exchange === "CoinMarketCap" ? this.expo(lastPrice, symbol) : this.pirceFormat(lastPrice, symbol),
-      highPrice: this.pirceFormat(highPrice, symbol),
-      lowPrice: this.pirceFormat(lowPrice, symbol),
-      changePrice: this.volumeChangeFormat(changePrice),
-      changePriceOriginal: changePrice,
-      urlLogo: await getCurrencyLogo(currencyName.toLowerCase()),
-    };
-  }
-
   private expo(price: string, symbol: string) {
     const _price = Number(price);
     if (_price > 1) {
