@@ -15,7 +15,7 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/436.png",
       textColor: "#4CBA64",
       currencyName: currency.toUpperCase(),
-      lastPrice: this.expo(response.last, "฿"),
+      lastPrice: this.pirceFormat(response.last, "฿"),
       highPrice: this.pirceFormat(response.high24hr, "฿"),
       lowPrice: this.pirceFormat(response.low24hr, "฿"),
       volume_change_24h: this.volumeChangeFormat(response.percentChange),
@@ -34,7 +34,7 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/325.png",
       textColor: "#1717d1",
       currencyName: currency.toUpperCase(),
-      lastPrice: this.expo(response.lastPrice, "฿"),
+      lastPrice: this.pirceFormat(response.lastPrice, "฿"),
       highPrice: this.pirceFormat(response.highPrice, "฿"),
       lowPrice: this.pirceFormat(response.lowPrice, "฿"),
       volume_change_24h: this.volumeChangeFormat(response.priceChange),
@@ -72,7 +72,7 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/270.png",
       textColor: "#F0B909",
       currencyName: currency.toUpperCase(),
-      lastPrice: this.expo(response.lastPrice, "$"),
+      lastPrice: this.pirceFormat(response.lastPrice, "$"),
       highPrice: this.pirceFormat(response.highPrice, "$"),
       lowPrice: this.pirceFormat(response.lowPrice, "$"),
       volume_change_24h: this.volumeChangeFormat(response.priceChangePercent),
@@ -91,7 +91,7 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/302.png",
       textColor: "#CE615E",
       currencyName: currency.toUpperCase(),
-      lastPrice: this.expo(response.last, "$"),
+      lastPrice: this.pirceFormat(response.last, "$"),
       highPrice: this.pirceFormat(response.high_24h, "$"),
       lowPrice: this.pirceFormat(response.low_24h, "$"),
       volume_change_24h: this.volumeChangeFormat(response.change_percentage),
@@ -110,7 +110,7 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/544.png",
       textColor: "#47DC90",
       currencyName: currency.toUpperCase(),
-      lastPrice: this.expo(response.last, "$"),
+      lastPrice: this.pirceFormat(response.last, "$"),
       highPrice: this.pirceFormat(response.high, "$"),
       lowPrice: this.pirceFormat(response.low, "$"),
       volume_change_24h: this.volumeChangeFormat(response.change_rate),
@@ -319,7 +319,7 @@ export class ExchangeService {
     } else if (_price > 0.00001) {
       return this.customPriceFormat(price, 5, symbol);
     } else {
-      return this.customPriceFormat(price, 5, symbol);
+      return this.customPriceFormat(price, 3, symbol);
     }
   }
 
