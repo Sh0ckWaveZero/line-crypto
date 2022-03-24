@@ -6853,6 +6853,7 @@ const cryptoList: any[] = [
   { id: 16093, name: "KUB" },
   { id: 16500, name: "SHIBDOGE" },
   { id: 17145, name: "LOKA" },
+  { id: 18723, name: "C2X" },
   { id: 18876, name: "APE" },
 ];
 
