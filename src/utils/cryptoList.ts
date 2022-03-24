@@ -2887,7 +2887,6 @@ const cryptoList: any[] = [
   { id: 7254, name: "METRIC" },
   { id: 7255, name: "AITRA" },
   { id: 7256, name: "MTLX" },
-  { id: 7257, name: "APE" },
   { id: 7262, name: "XDNA" },
   { id: 7263, name: "HLP" },
   { id: 7270, name: "SFD" },
@@ -6854,6 +6853,7 @@ const cryptoList: any[] = [
   { id: 16093, name: "KUB" },
   { id: 16500, name: "SHIBDOGE" },
   { id: 17145, name: "LOKA" },
+  { id: 18876, name: "APE" },
 ];
 
 export {
