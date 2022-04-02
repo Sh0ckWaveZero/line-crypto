@@ -2,10 +2,11 @@ import axios from "axios";
 import _ from "underscore";
 import CryptoInfo from "interfaces/crypto.interface";
 import { getCurrencyLogo, mapSymbolsThai } from "../utils/cyptocurrencies";
-import { cryptoList } from "../utils/cryptoList";
+import { CmcService } from './cmc.service';
 
 const regex = new RegExp(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g);
 export class ExchangeService {
+  cmcService = new CmcService();
   getBitkub = async (_currency: any): Promise<CryptoInfo> => {
     const currency = mapSymbolsThai(_currency);
     const response: any = await this.bitkub(currency);
@@ -14,7 +15,7 @@ export class ExchangeService {
       exchange: "Bitkub",
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/436.png",
       textColor: "#4CBA64",
-      currencyName: currency.toUpperCase(),
+      currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
       lastPrice: this.pirceFormat(response.last, "฿"),
       highPrice: this.pirceFormat(response.high24hr, "฿"),
       lowPrice: this.pirceFormat(response.low24hr, "฿"),
@@ -33,7 +34,7 @@ export class ExchangeService {
       exchange: "Satang Pro",
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/325.png",
       textColor: "#1717d1",
-      currencyName: currency.toUpperCase(),
+      currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
       lastPrice: this.pirceFormat(response.lastPrice, "฿"),
       highPrice: this.pirceFormat(response.highPrice, "฿"),
       lowPrice: this.pirceFormat(response.lowPrice, "฿"),
@@ -52,7 +53,7 @@ export class ExchangeService {
       exchange: "Bitazza",
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/1124.png",
       textColor: "#8FA775",
-      currencyName: currency.toUpperCase(),
+      currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
       lastPrice: this.expo(response.last_price, "฿"),
       highPrice: this.pirceFormat(response.highest_price_24h, "฿"),
       lowPrice: this.pirceFormat(response.lowest_price_24h, "฿"),
@@ -71,7 +72,7 @@ export class ExchangeService {
       exchange: "Binance",
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/270.png",
       textColor: "#F0B909",
-      currencyName: currency.toUpperCase(),
+      currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
       lastPrice: this.pirceFormat(response.lastPrice, "$"),
       highPrice: this.pirceFormat(response.highPrice, "$"),
       lowPrice: this.pirceFormat(response.lowPrice, "$"),
@@ -90,7 +91,7 @@ export class ExchangeService {
       exchange: "Gate.io",
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/302.png",
       textColor: "#CE615E",
-      currencyName: currency.toUpperCase(),
+      currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
       lastPrice: this.pirceFormat(response.last, "$"),
       highPrice: this.pirceFormat(response.high_24h, "$"),
       lowPrice: this.pirceFormat(response.low_24h, "$"),
@@ -109,7 +110,7 @@ export class ExchangeService {
       exchange: "MEXC",
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/544.png",
       textColor: "#47DC90",
-      currencyName: currency.toUpperCase(),
+      currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
       lastPrice: this.pirceFormat(response.last, "$"),
       highPrice: this.pirceFormat(response.high, "$"),
       lowPrice: this.pirceFormat(response.low, "$"),
@@ -128,7 +129,7 @@ export class ExchangeService {
       exchange: "FTX",
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/524.png",
       textColor: "#2BB4CA",
-      currencyName: currency.toUpperCase(),
+      currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
       lastPrice: this.expo(response.last, "$"),
       volume_24h: this.expo(response.volumeUsd24h, "$"),
       volume_change_24h: this.volumeChangeFormat(response.change24h),
@@ -157,6 +158,11 @@ export class ExchangeService {
       urlLogo: await getCurrencyLogo(_currency.toLowerCase()),
     }
   };
+
+  getCmcList = async (start: number, limit: number) => {
+    const res: any = await this.cmcList(start, limit);
+    await this.cmcService.addCointList(res);
+  }
 
   getDeficurrency = async (_currency: string): Promise<any> => {
     const currency = mapSymbolsThai(_currency);
@@ -256,9 +262,7 @@ export class ExchangeService {
   private cmc = async (currencyName: string): Promise<any> => {
     try {
       const coin = currencyName.toUpperCase();
-      const currencyId: string = cryptoList
-        .filter((item: any) => item.name === coin)
-        .map((element: any) => element.id)[0];
+      const currencyId: string = await this.cmcService.findOneCoinName(coin);
       const config: any = {
         method: 'get',
         url: process.env.CMC_URL + `/v1/cryptocurrency/quotes/latest?id=${currencyId}`,
@@ -271,6 +275,27 @@ export class ExchangeService {
       })
         .catch((error) => {
           console.log(error);
+        });
+    } catch (error) {
+      console.error("CoinMarkerCap is error: ", error);
+    }
+  };
+
+  private cmcList = async (start: number, limit: number): Promise<any> => {
+    try {
+      const config: any = {
+        method: 'get',
+        url: process.env.CMC_URL + `/v1/cryptocurrency/map?start=${start}&limit=${limit}`,
+        headers: {
+          'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY
+        }
+      };
+      return await axios(config).then(async (response) => {
+        console.log(response?.data?.data);
+        return await response?.data?.data;
+      })
+        .catch((error) => {
+          console.log(error.response.data);
         });
     } catch (error) {
       console.error("CoinMarkerCap is error: ", error);

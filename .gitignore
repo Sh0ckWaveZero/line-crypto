@@ -8,3 +8,4 @@ node_modules
 ss.yarnrc.yml
 
 config.yml
+/src/assets/images/**

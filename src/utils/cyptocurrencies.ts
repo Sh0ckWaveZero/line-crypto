@@ -1,5 +1,5 @@
 import axios from "axios";
-import { cryptoList } from "./cryptoList";
+import { CmcService } from '../services/cmc.service';
 
 const cryptoCurrenciesList = [
   {
@@ -21,10 +21,9 @@ export function mapSymbolsThai(symbols: string): string {
 }
 
 export async function getCurrencyLogo(currencyName: string): Promise<any> {
+  const cmcService = new CmcService();
   try {
-    const currencyId: string = cryptoList
-      .filter((item: any) => item.name === currencyName.toLocaleUpperCase())
-      .map((element: any) => element.id)[0];
+    const currencyId: string = await cmcService.findOneCoinId(currencyName.toUpperCase());
     const cmcCurrenciesLogo = `https://s2.coinmarketcap.com/static/img/coins/128x128/${currencyId}.png`;
     let response: any;
     if (!currencyId) {

@@ -69,16 +69,16 @@ class IndexController {
     // reject not en lang
     if (message.charAt(0) !== "/") return;
     let commandList: any[] = message.split(" ");
-    let exchangeName: string = "";
+    let command: string = "";
     let currency: any[] = [];
-    commandList.forEach((command: string, index: number) => {
+    commandList.forEach((_command: string, index: number) => {
       if (index === 0) {
-        exchangeName = command.substr(1, command.length).toLowerCase();
-      } else if (!_.isEqual(command, "")) {
-        currency.push(command);
+        command = _command.slice(1, _command.length).toLowerCase();
+      } else if (!_.isEqual(_command, "")) {
+        currency.push(_command);
       }
     });
-    this.handleCommand(exchangeName, currency, req);
+    this.handleCommand(command, currency, req);
   }
 
   public handleSticker(req: Request, event: any) {
@@ -107,8 +107,8 @@ class IndexController {
     }
   }
 
-  async handleCommand(_exchangeName: string, currency: any[], req: Request) {
-    const exchangeName = _exchangeName.toLowerCase();
+  async handleCommand(command: string, currency: any[], req: Request) {
+    const exchangeName = command
     if (exchangeName === "bk" || exchangeName === "bitkub") {
       const promises: any[] = [];
       for (const index in currency) {
@@ -174,6 +174,11 @@ class IndexController {
 
       await this.getFlexMessage(req, promises);
     }
+    // } else if (command === "pt" || command === "plot") {
+    //   console.log("🚀 ~command ", command);
+    //   await this.exchangeService.getCmcList(Number(currency[0]), Number(currency[1]));
+
+    // }
     // } else if (exchangeName === "defi") {
     // }
   }

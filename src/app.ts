@@ -4,6 +4,7 @@ import * as express from 'express';
 import * as helmet from 'helmet';
 import * as hpp from 'hpp';
 import * as logger from 'morgan';
+import * as path from 'path';
 import Routes from './interfaces/routes.interface';
 import errorMiddleware from './middlewares/error.middleware';
 
@@ -24,6 +25,7 @@ class App {
   }
 
   public listen() {
+    // await getMongoDBClient();
     this.app.listen(this.port, () => {
       console.log(`🚀 App listening on the port ${this.port}`);
     });
@@ -34,6 +36,7 @@ class App {
   }
 
   private initializeMiddlewares() {
+    this.app.use('/static', express.static(path.join(__dirname, 'assets')));
     if (this.env) {
       this.app.use(hpp());
       this.app.use(helmet.contentSecurityPolicy());
@@ -60,6 +63,7 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+
   }
 
   private initializeRoutes(routes: Routes[]) {
