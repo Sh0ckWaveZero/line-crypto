@@ -1,12 +1,16 @@
 import axios from "axios";
+import * as cheerio from 'cheerio';
 import _ from "underscore";
 import CryptoInfo from "interfaces/crypto.interface";
 import { getCurrencyLogo, mapSymbolsThai } from "../utils/cyptocurrencies";
 import { CmcService } from './cmc.service';
+import { Utils } from '../utils/util';
 
-const regex = new RegExp(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g);
 export class ExchangeService {
+
   cmcService = new CmcService();
+  utils = new Utils();
+
   getBitkub = async (_currency: any): Promise<CryptoInfo> => {
     const currency = mapSymbolsThai(_currency);
     const response: any = await this.bitkub(currency);
@@ -16,12 +20,12 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/436.png",
       textColor: "#4CBA64",
       currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
-      lastPrice: this.pirceFormat(response.last, "฿"),
-      highPrice: this.pirceFormat(response.high24hr, "฿"),
-      lowPrice: this.pirceFormat(response.low24hr, "฿"),
-      volume_change_24h: this.volumeChangeFormat(response.percentChange),
-      priceChangeColor: this.priceChangeColor(response.percentChange),
-      last_updated: this.lastUpdateFormat(null),
+      lastPrice: this.utils.pirceFormat(response.last, "฿"),
+      highPrice: this.utils.pirceFormat(response.high24hr, "฿"),
+      lowPrice: this.utils.pirceFormat(response.low24hr, "฿"),
+      volume_change_24h: this.utils.volumeChangeFormat(response.percentChange),
+      priceChangeColor: this.utils.priceChangeColor(response.percentChange),
+      last_updated: this.utils.lastUpdateFormat(null),
       urlLogo: await getCurrencyLogo(_currency.toLowerCase()),
     }
   };
@@ -35,12 +39,12 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/325.png",
       textColor: "#1717d1",
       currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
-      lastPrice: this.pirceFormat(response.lastPrice, "฿"),
-      highPrice: this.pirceFormat(response.highPrice, "฿"),
-      lowPrice: this.pirceFormat(response.lowPrice, "฿"),
-      volume_change_24h: this.volumeChangeFormat(response.priceChange),
-      priceChangeColor: this.priceChangeColor(response.priceChange),
-      last_updated: this.lastUpdateFormat(null),
+      lastPrice: this.utils.pirceFormat(response.lastPrice, "฿"),
+      highPrice: this.utils.pirceFormat(response.highPrice, "฿"),
+      lowPrice: this.utils.pirceFormat(response.lowPrice, "฿"),
+      volume_change_24h: this.utils.volumeChangeFormat(response.priceChange),
+      priceChangeColor: this.utils.priceChangeColor(response.priceChange),
+      last_updated: this.utils.lastUpdateFormat(null),
       urlLogo: await getCurrencyLogo(_currency.toLowerCase()),
     }
   };
@@ -54,12 +58,12 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/1124.png",
       textColor: "#8FA775",
       currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
-      lastPrice: this.expo(response.last_price, "฿"),
-      highPrice: this.pirceFormat(response.highest_price_24h, "฿"),
-      lowPrice: this.pirceFormat(response.lowest_price_24h, "฿"),
-      volume_change_24h: this.volumeChangeFormat(response.price_change_percent_24h),
-      priceChangeColor: this.priceChangeColor(response.price_change_percent_24h),
-      last_updated: this.lastUpdateFormat(null),
+      lastPrice: this.utils.expo(response.last_price, "฿"),
+      highPrice: this.utils.pirceFormat(response.highest_price_24h, "฿"),
+      lowPrice: this.utils.pirceFormat(response.lowest_price_24h, "฿"),
+      volume_change_24h: this.utils.volumeChangeFormat(response.price_change_percent_24h),
+      priceChangeColor: this.utils.priceChangeColor(response.price_change_percent_24h),
+      last_updated: this.utils.lastUpdateFormat(null),
       urlLogo: await getCurrencyLogo(_currency.toLowerCase()),
     }
   };
@@ -73,12 +77,12 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/270.png",
       textColor: "#F0B909",
       currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
-      lastPrice: this.pirceFormat(response.lastPrice, "$"),
-      highPrice: this.pirceFormat(response.highPrice, "$"),
-      lowPrice: this.pirceFormat(response.lowPrice, "$"),
-      volume_change_24h: this.volumeChangeFormat(response.priceChangePercent),
-      priceChangeColor: this.priceChangeColor(response.priceChangePercent),
-      last_updated: this.lastUpdateFormat(null),
+      lastPrice: this.utils.pirceFormat(response.lastPrice, "$"),
+      highPrice: this.utils.pirceFormat(response.highPrice, "$"),
+      lowPrice: this.utils.pirceFormat(response.lowPrice, "$"),
+      volume_change_24h: this.utils.volumeChangeFormat(response.priceChangePercent),
+      priceChangeColor: this.utils.priceChangeColor(response.priceChangePercent),
+      last_updated: this.utils.lastUpdateFormat(null),
       urlLogo: await getCurrencyLogo(_currency.toLowerCase()),
     }
   };
@@ -92,12 +96,12 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/302.png",
       textColor: "#CE615E",
       currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
-      lastPrice: this.pirceFormat(response.last, "$"),
-      highPrice: this.pirceFormat(response.high_24h, "$"),
-      lowPrice: this.pirceFormat(response.low_24h, "$"),
-      volume_change_24h: this.volumeChangeFormat(response.change_percentage),
-      priceChangeColor: this.priceChangeColor(response.change_percentage),
-      last_updated: this.lastUpdateFormat(null),
+      lastPrice: this.utils.pirceFormat(response.last, "$"),
+      highPrice: this.utils.pirceFormat(response.high_24h, "$"),
+      lowPrice: this.utils.pirceFormat(response.low_24h, "$"),
+      volume_change_24h: this.utils.volumeChangeFormat(response.change_percentage),
+      priceChangeColor: this.utils.priceChangeColor(response.change_percentage),
+      last_updated: this.utils.lastUpdateFormat(null),
       urlLogo: await getCurrencyLogo(_currency.toLowerCase()),
     }
   };
@@ -111,12 +115,12 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/544.png",
       textColor: "#47DC90",
       currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
-      lastPrice: this.pirceFormat(response.last, "$"),
-      highPrice: this.pirceFormat(response.high, "$"),
-      lowPrice: this.pirceFormat(response.low, "$"),
-      volume_change_24h: this.volumeChangeFormat(response.change_rate),
-      priceChangeColor: this.priceChangeColor(response.change_rate),
-      last_updated: this.lastUpdateFormat(null),
+      lastPrice: this.utils.pirceFormat(response.last, "$"),
+      highPrice: this.utils.pirceFormat(response.high, "$"),
+      lowPrice: this.utils.pirceFormat(response.low, "$"),
+      volume_change_24h: this.utils.volumeChangeFormat(response.change_rate),
+      priceChangeColor: this.utils.priceChangeColor(response.change_rate),
+      last_updated: this.utils.lastUpdateFormat(null),
       urlLogo: await getCurrencyLogo(_currency.toLowerCase()),
     }
   };
@@ -130,11 +134,11 @@ export class ExchangeService {
       exchangeLogoUrl: "https://s2.coinmarketcap.com/static/img/exchanges/128x128/524.png",
       textColor: "#2BB4CA",
       currencyName: await this.cmcService.findOneCoinName(currency.toUpperCase()),
-      lastPrice: this.expo(response.last, "$"),
-      volume_24h: this.expo(response.volumeUsd24h, "$"),
-      volume_change_24h: this.volumeChangeFormat(response.change24h),
-      priceChangeColor: this.priceChangeColor(response.change24h),
-      last_updated: this.lastUpdateFormat(null),
+      lastPrice: this.utils.expo(response.last, "$"),
+      volume_24h: this.utils.expo(response.volumeUsd24h, "$"),
+      volume_change_24h: this.utils.volumeChangeFormat(response.change24h),
+      priceChangeColor: this.utils.priceChangeColor(response.change24h),
+      last_updated: this.utils.lastUpdateFormat(null),
       urlLogo: await getCurrencyLogo(_currency.toLowerCase()),
     }
   };
@@ -149,12 +153,12 @@ export class ExchangeService {
       exchangeLogoUrl: "https://coinmarketcap.com/apple-touch-icon.png",
       textColor: "#3861FB",
       currencyName: response.name,
-      lastPrice: this.expo(quote.price, "$"),
-      volume_24h: this.expo(quote.volume_24h, "$"),
+      lastPrice: this.utils.expo(quote.price, "$"),
+      volume_24h: this.utils.expo(quote.volume_24h, "$"),
       cmc_rank: response.cmc_rank,
-      volume_change_24h: this.volumeChangeFormat(quote.percent_change_24h),
-      priceChangeColor: this.priceChangeColor(quote.percent_change_24h),
-      last_updated: this.lastUpdateFormat(quote.last_updated),
+      volume_change_24h: this.utils.volumeChangeFormat(quote.percent_change_24h),
+      priceChangeColor: this.utils.priceChangeColor(quote.percent_change_24h),
+      last_updated: this.utils.lastUpdateFormat(quote.last_updated),
       urlLogo: await getCurrencyLogo(_currency.toLowerCase()),
     }
   };
@@ -308,7 +312,7 @@ export class ExchangeService {
         currency: "USD",
         code: message.toUpperCase(),
         meta: true,
-      });
+      })
       const config: any = {
         method: "post",
         url: "https://api.livecoinwatch.com/coins/single",
@@ -336,45 +340,26 @@ export class ExchangeService {
     }
   };
 
-  private expo(price: string, symbol: string) {
-    const _price = Number(price);
-    if (_price > 1) {
-      return symbol + " " + Number.parseFloat(price).toFixed(3).toString()
-        .replace(regex, ",");
-    } else if (_price > 0.00001) {
-      return this.customPriceFormat(price, 5, symbol);
-    } else {
-      return this.customPriceFormat(price, 3, symbol);
+  getGoldPrice = async (): Promise<any> => {
+    try {
+      const goldPrice: any = {};
+      // Fetch HTML
+      const { data }: any = await axios.get('https://www.goldtraders.or.th/');
+      // Load HTML
+      const dom: any = cheerio.load(data);
+      // Select div items
+      goldPrice.lastUpdate = dom('span#DetailPlace_uc_goldprices1_lblAsTime b').text().trim();
+      goldPrice.barSell = dom('span#DetailPlace_uc_goldprices1_lblBLSell b').text().trim();
+      goldPrice.barSellColor = this.utils.priceColor(dom('span#DetailPlace_uc_goldprices1_lblBLSell b font').attr('color'));
+      goldPrice.barBuy = dom('span#DetailPlace_uc_goldprices1_lblBLBuy b').text().trim();
+      goldPrice.barBuyColor = this.utils.priceColor(dom('span#DetailPlace_uc_goldprices1_lblBLBuy b font').attr('color'));
+      goldPrice.jewelrySell = dom('span#DetailPlace_uc_goldprices1_lblOMSell b').text().trim();
+      goldPrice.jewelrySellColor = this.utils.priceColor(dom('span#DetailPlace_uc_goldprices1_lblOMSell b font').attr('color'));
+      goldPrice.jewelryBuy = dom('span#DetailPlace_uc_goldprices1_lblOMBuy b').text().trim();
+      goldPrice.jewelryBuyColor = this.utils.priceColor(dom('span#DetailPlace_uc_goldprices1_lblOMBuy b font').attr('color'));
+      return goldPrice;
+    } catch (error) {
+      console.error(error);
     }
-  }
-
-  private pirceFormat(price: string, symbol: string) {
-    return symbol + " " + parseFloat(price).toString()
-      .replace(regex, ",")
-  }
-
-  private customPriceFormat(price: string, digit: number, symbol: string) {
-    return symbol + " " +
-      Number.parseFloat(price)
-        .toExponential(digit).toString()
-        .replace(regex, ",");
-  }
-
-  private volumeChangeFormat(price: string) {
-    return (Number(price) > 0 ? "+" : "") +
-      parseFloat(price).toFixed(2).toString()
-        .replace(regex, ",") + "%"
-  }
-
-  private lastUpdateFormat(lastUpdate: string | number) {
-    lastUpdate = lastUpdate ? lastUpdate : new Date().toLocaleString();
-    return new Date(lastUpdate).toLocaleString("th-TH", {
-      timeZone: "Asia/Bangkok",
-      hour12: false,
-    });
-  }
-
-  private priceChangeColor(price: string) {
-    return Number(price) > 0 ? "#00D666" : "#F74C6C";
-  }
+  };
 }

@@ -173,14 +173,25 @@ class IndexController {
       });
 
       await this.getFlexMessage(req, promises);
-    }
-    // } else if (command === "pt" || command === "plot") {
-    //   console.log("🚀 ~command ", command);
-    //   await this.exchangeService.getCmcList(Number(currency[0]), Number(currency[1]));
+    } else if (exchangeName === "gold") {
+      this.exchangeService.getGoldPrice()
+        .then((data: any) => {
+          const msg = this.lineService.goldBubble(data);
+          const payload = this.flexMessage(msg);
+          this.sendMessage(req, payload);
+        })
+        .catch((err: any) => {
+          console.log(err);
 
-    // }
-    // } else if (exchangeName === "defi") {
-    // }
+        })
+      // } else if (command === "pt" || command === "plot") {
+      //   console.log("🚀 ~command ", command);
+      //   await this.exchangeService.getCmcList(Number(currency[0]), Number(currency[1]));
+
+      // }
+      // } else if (exchangeName === "defi") {
+      // }
+    }
   }
 
   async getFlexMessage(req: any, data: any) {
