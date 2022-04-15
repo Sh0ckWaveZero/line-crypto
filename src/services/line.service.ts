@@ -323,4 +323,124 @@ export class LineService {
       }
     ]
   }
+
+  gasBubble = (provider: string, item: any) => {
+
+    let boxContents: any[] = [
+      {
+        "type": "text",
+        "text": `${item.providerName}`,
+        "size": "md",
+        "weight": "bold"
+      }
+    ]
+
+    item.gasPrice.forEach((element: any) => {
+      boxContents.push(
+        {
+          "type": "box",
+          "layout": "vertical",
+          "spacing": "sm",
+          "contents": [
+            {
+              "type": "box",
+              "layout": "baseline",
+              "contents": [
+                {
+                  "type": "icon",
+                  "url": "https://img.icons8.com/external-flat-icons-pack-pongsakorn-tan/344/external-gas-intelligent-automotive-flat-icons-pack-pongsakorn-tan.png",
+                  "offsetTop": "sm"
+                },
+                {
+                  "type": "text",
+                  "text": `${element.name}`,
+                  "weight": "bold",
+                  "margin": "xs",
+                  "flex": 0,
+                  "size": "xxs",
+                  "style": "normal",
+                  "gravity": "center",
+                  "wrap": true
+                },
+                {
+                  "type": "text",
+                  "text": `${element.value} บาท`,
+                  "size": "xxs",
+                  "align": "end",
+                  "color": "#aaaaaa"
+                }
+              ],
+              "justifyContent": "center",
+              "alignItems": "center"
+            }
+          ]
+        }
+      )
+    });
+
+    const logo = [
+      {
+        provider: "ptt",
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/PTT-01.svg/1200px-PTT-01.svg.png"
+      },
+      {
+        provider: "shell",
+        url: "https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/Shell_logo.svg/1200px-Shell_logo.svg.png"
+      },
+      {
+        provider: "esso",
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Esso_textlogo.svg/1200px-Esso_textlogo.svg.png"
+      },
+      {
+        provider: "caltex",
+        url: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Caltex_brand_logo.svg/1200px-Caltex_brand_logo.svg.png"
+      },
+      {
+        provider: "irpc",
+        url: "https://www.logolynx.com/images/logolynx/a0/a02a324e481867f34c45ea34509cda65.jpeg"
+      },
+      {
+        provider: "pt",
+        url: "https://gsm.co.th/wp-content/uploads/2017/09/pt-logo.png"
+      },
+      {
+        provider: "susco",
+        url: "https://www.susco.co.th/images/logo_susco_large.png"
+      },
+      {
+        provider: "pure",
+        url: "https://shops-image.s3-ap-southeast-1.amazonaws.com/l/logothailand/img-lib/spd_20130825231513_b.jpg"
+      }
+    ]
+
+    const logoUrl = logo
+      .filter((element: any) => element.provider === provider)
+      .map((element: any) => element.url)[0]
+
+    console.log(logoUrl)
+
+    const bubble = [
+      {
+        "type": "bubble",
+        "hero": {
+          "type": "image",
+          "url": `${logoUrl}`,
+          "size": "lg",
+          "aspectMode": "fit"
+        },
+        "body": {
+          "type": "box",
+          "layout": "vertical",
+          "spacing": "md",
+          "contents": boxContents,
+        },
+        "styles": {
+          "hero": {
+            "backgroundColor": "#f8edeb"
+          }
+        }
+      }
+    ];
+    return bubble;
+  }
 }

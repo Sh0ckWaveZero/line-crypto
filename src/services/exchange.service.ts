@@ -346,18 +346,43 @@ export class ExchangeService {
       // Fetch HTML
       const { data }: any = await axios.get('https://www.goldtraders.or.th/');
       // Load HTML
-      const dom: any = cheerio.load(data);
+      const $: any = cheerio.load(data);
       // Select div items
-      goldPrice.lastUpdate = dom('span#DetailPlace_uc_goldprices1_lblAsTime b').text().trim();
-      goldPrice.barSell = dom('span#DetailPlace_uc_goldprices1_lblBLSell b').text().trim();
-      goldPrice.barSellColor = this.utils.priceColor(dom('span#DetailPlace_uc_goldprices1_lblBLSell b font').attr('color'));
-      goldPrice.barBuy = dom('span#DetailPlace_uc_goldprices1_lblBLBuy b').text().trim();
-      goldPrice.barBuyColor = this.utils.priceColor(dom('span#DetailPlace_uc_goldprices1_lblBLBuy b font').attr('color'));
-      goldPrice.jewelrySell = dom('span#DetailPlace_uc_goldprices1_lblOMSell b').text().trim();
-      goldPrice.jewelrySellColor = this.utils.priceColor(dom('span#DetailPlace_uc_goldprices1_lblOMSell b font').attr('color'));
-      goldPrice.jewelryBuy = dom('span#DetailPlace_uc_goldprices1_lblOMBuy b').text().trim();
-      goldPrice.jewelryBuyColor = this.utils.priceColor(dom('span#DetailPlace_uc_goldprices1_lblOMBuy b font').attr('color'));
+      goldPrice.lastUpdate = $('span#DetailPlace_uc_goldprices1_lblAsTime b').text().trim();
+      goldPrice.barSell = $('span#DetailPlace_uc_goldprices1_lblBLSell b').text().trim();
+      goldPrice.barSellColor = this.utils.priceColor($('span#DetailPlace_uc_goldprices1_lblBLSell b font').attr('color'));
+      goldPrice.barBuy = $('span#DetailPlace_uc_goldprices1_lblBLBuy b').text().trim();
+      goldPrice.barBuyColor = this.utils.priceColor($('span#DetailPlace_uc_goldprices1_lblBLBuy b font').attr('color'));
+      goldPrice.jewelrySell = $('span#DetailPlace_uc_goldprices1_lblOMSell b').text().trim();
+      goldPrice.jewelrySellColor = this.utils.priceColor($('span#DetailPlace_uc_goldprices1_lblOMSell b font').attr('color'));
+      goldPrice.jewelryBuy = $('span#DetailPlace_uc_goldprices1_lblOMBuy b').text().trim();
+      goldPrice.jewelryBuyColor = this.utils.priceColor($('span#DetailPlace_uc_goldprices1_lblOMBuy b font').attr('color'));
       return goldPrice;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  getGasPrice = async (provider: string): Promise<any> => {
+    try {
+      // Fetch HTML
+      const { data }: any = await axios.get('http://gasprice.kapook.com/gasprice.php');
+      // Load HTML
+      const $: any = cheerio.load(data);
+      // Select div items
+      let gasPrice: any = [];
+      // Select div items
+      const providerName = $(`article.gasprice.${provider} > header > h3`).text();
+      $(`article.gasprice.${provider} > ul > li`).each((i: any, elem: any) => {
+        gasPrice.push({
+          name: $(elem).find('span').text(),
+          value: $(elem).find('em').text(),
+        });
+      });
+      return {
+        providerName: providerName,
+        gasPrice: gasPrice,
+      }
     } catch (error) {
       console.error(error);
     }

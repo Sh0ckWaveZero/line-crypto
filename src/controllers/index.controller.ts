@@ -173,7 +173,7 @@ class IndexController {
       });
 
       await this.getFlexMessage(req, promises);
-    } else if (exchangeName === "gold") {
+    } else if (exchangeName === "gold" || exchangeName === "ทอง") {
       this.exchangeService.getGoldPrice()
         .then((data: any) => {
           const msg = this.lineService.goldBubble(data);
@@ -181,16 +181,21 @@ class IndexController {
           this.sendMessage(req, payload);
         })
         .catch((err: any) => {
-          console.log(err);
-
+          console.error(err);
+          this.replyNotFound(req);
         })
-      // } else if (command === "pt" || command === "plot") {
-      //   console.log("🚀 ~command ", command);
-      //   await this.exchangeService.getCmcList(Number(currency[0]), Number(currency[1]));
-
-      // }
-      // } else if (exchangeName === "defi") {
-      // }
+    } else if (exchangeName === "gas" || exchangeName === "น้ำมัน") {
+      if (currency.length === 0) this.replyNotFound(req);
+      this.exchangeService.getGasPrice(currency[0])
+        .then((data: any) => {
+          const msg = this.lineService.gasBubble(currency[0], data);
+          const payload = this.flexMessage(msg);
+          this.sendMessage(req, payload);
+        })
+        .catch((err: any) => {
+          console.error(err);
+          this.replyNotFound(req);
+        })
     }
   }
 
