@@ -417,7 +417,9 @@ export class LineService {
       .filter((element: any) => element.provider === provider)
       .map((element: any) => element.url)[0]
 
-    console.log(logoUrl)
+    if (!logoUrl) {
+      return null
+    }
 
     const bubble = [
       {

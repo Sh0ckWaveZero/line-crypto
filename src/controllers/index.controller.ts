@@ -189,6 +189,9 @@ class IndexController {
       this.exchangeService.getGasPrice(currency[0])
         .then((data: any) => {
           const msg = this.lineService.gasBubble(currency[0], data);
+          if (!msg) {
+            this.replyNotFound(req);
+          }
           const payload = this.flexMessage(msg);
           this.sendMessage(req, payload);
         })
@@ -467,7 +470,8 @@ class IndexController {
         },
       },
     ];
-    this.sendMessage(req, this.flexMessage(msg));
+    const payload = this.flexMessage(msg);
+    this.sendMessage(req, payload);
   }
 
   public replyRaw = async (
