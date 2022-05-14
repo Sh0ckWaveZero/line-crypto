@@ -132,10 +132,11 @@ class IndexController {
       }
       await this.getFlexMessage(req, promises);
 
-    } else if (exchangeName === "bn" || exchangeName === "binance") {
+    } else if (exchangeName === "bn" || exchangeName === "binance" || exchangeName === "bnbusd") {
       const promises: any[] = [];
+      const pairtCurrency: string = exchangeName === "bnbusd" ? "BUSD" : "USDT";
       for (const index in currency) {
-        promises.push(this.exchangeService.getBinance(currency[index]));
+        promises.push(this.exchangeService.getBinance(currency[index], pairtCurrency));
       }
       await this.getFlexMessage(req, promises);
     } else if (exchangeName === "gate" || exchangeName === "gateio" || exchangeName === "gt") {

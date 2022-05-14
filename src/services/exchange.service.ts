@@ -68,9 +68,9 @@ export class ExchangeService {
     }
   };
 
-  getBinance = async (_currency: string): Promise<CryptoInfo> => {
+  getBinance = async (_currency: string, pairCurrency: string): Promise<CryptoInfo> => {
     const currency = mapSymbolsThai(_currency);
-    const response: any = await this.binance(currency);
+    const response: any = await this.binance(currency, pairCurrency);
     if (_.isEmpty(response)) return;
     return {
       exchange: "Binance",
@@ -195,11 +195,11 @@ export class ExchangeService {
     }
   };
 
-  private binance = async (currencyName: string): Promise<any> => {
+  private binance = async (currencyName: string, pairt: string = 'USDT'): Promise<any> => {
     try {
       return await axios
         .get(
-          `https://api.binance.com/api/v3/ticker/24hr?symbol=${currencyName.toUpperCase()}USDT`
+          `https://api.binance.com/api/v3/ticker/24hr?symbol=${currencyName.toUpperCase()}${pairt.toUpperCase()}`
         )
         .then((item: any) => {
           return item.data;
