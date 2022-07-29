@@ -2,13 +2,15 @@ import 'dotenv/config';
 import App from './app';
 import validateEnv from './utils/validateEnv';
 import IndexRoute from './routes/index.route';
-import HealthcheckRoute from './routes/healthcheck.route';
+import HealthCheckRoute from './routes/healthCheck.route';
+import LineRoute from './routes/line.route';
 
 validateEnv();
 
 const app = new App([
   new IndexRoute(),
-  new HealthcheckRoute(),
+  new HealthCheckRoute(),
+  new LineRoute(),
 ]);
 
 app.listen();

@@ -7,6 +7,7 @@ import { AirvisualService } from "../services/airvisual.service";
 import CryptoInfo from "interfaces/crypto.interface";
 import * as crypto from "crypto";
 import { getConsolation } from "../utils/wording";
+import { Utils } from '../utils/util';
 
 class IndexController {
   private token = `Bearer ${process.env.LINE_TOKEN}`;
@@ -16,7 +17,7 @@ class IndexController {
     "Content-Type": "application/json",
     Authorization: this.token,
   };
-
+  private utils = new Utils();
   private exchangeService = new ExchangeService();
   private airvisualService = new AirvisualService();
   private lineService = new LineService();
@@ -41,12 +42,25 @@ class IndexController {
         res.status(200).json({ message: "ok" });
         return;
       }
-      return this.handleEvent(req);
+      return this.handleLineLogin(req, res);
     } catch (error) {
       console.error(error);
       next(error);
     }
   };
+
+  async handleLineLogin(req: Request, res: Response) {
+    const isPermission = await this.lineService.findByUserId(req.body.events[0].source.userId);
+    if (
+      !_.isEmpty(isPermission) &&
+      this.utils.compareDate(isPermission.expiresIn, new Date().toISOString())
+    ) {
+      return await this.handleEvent(req)
+    } else {
+      const payload = this.lineService.bubbleSignIn();
+      return this.pushMessage(res, req.body.events[0].source.userId, payload);
+    }
+  }
 
   public handleEvent(req: Request) {
     const events = req.body.events;
@@ -82,7 +96,6 @@ class IndexController {
   }
 
   public handleSticker(req: Request, event: any) {
-    // console.log("🚀 ~event.message ", event.message)
     if (
       event.message.keywords.includes("Sad" || "Crying" || "Tears" || "anguish")
     ) {
@@ -509,8 +522,28 @@ class IndexController {
         }),
       });
     } catch (err) {
-      console.log("err: ", err);
       console.error(err);
+    }
+  };
+
+  pushMessage = async (res: Response, userId: string, payload: any) => {
+    try {
+      return axios({
+        method: "post",
+        url: `${this.LINE_MESSAGING_API}/push`,
+        headers: this.LINE_HEADER,
+        data: JSON.stringify({
+          to: userId,
+          messages: this.flexMessage(payload),
+        }),
+      }).then(() => {
+        return res.status(200).send(`Done`);
+      }).catch((error) => {
+        return Promise.reject(error);
+      });
+    } catch (err) {
+      console.error(err);
+      return Promise.reject(err);
     }
   };
 

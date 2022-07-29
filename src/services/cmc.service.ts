@@ -19,7 +19,7 @@ export class CmcService {
     });
   }
 
-  async addCointList(items: any[]) {
+  async addCoinsList(items: any[]) {
     return await this.repo.addMany(items?.map((item: CmcList) => {
       return {
         id: item?.id,

@@ -165,7 +165,7 @@ export class ExchangeService {
 
   getCmcList = async (start: number, limit: number) => {
     const res: any = await this.cmcList(start, limit);
-    await this.cmcService.addCointList(res);
+    await this.cmcService.addCoinsList(res);
   }
 
   getDeficurrency = async (_currency: string): Promise<any> => {

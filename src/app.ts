@@ -6,8 +6,8 @@ import * as hpp from 'hpp';
 import * as logger from 'morgan';
 import * as path from 'path';
 import Routes from './interfaces/routes.interface';
-import errorMiddleware from './middlewares/error.middleware';
-
+import errorMiddleware from './middleware/error.middleware';
+import rateLimit from 'express-rate-limit';
 
 class App {
   public app: express.Application;
@@ -19,7 +19,7 @@ class App {
     this.port = process.env.PORT || 3000;
     this.env = process.env.NODE_ENV === 'production' ? true : false;
 
-    this.initializeMiddlewares();
+    this.initializeMiddleware();
     this.initializeRoutes(routes);
     this.initializeErrorHandling();
   }
@@ -35,7 +35,7 @@ class App {
     return this.app;
   }
 
-  private initializeMiddlewares() {
+  private initializeMiddleware() {
     this.app.use('/static', express.static(path.join(__dirname, 'assets')));
     if (this.env) {
       this.app.use(hpp());
@@ -63,11 +63,17 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
-
   }
 
   private initializeRoutes(routes: Routes[]) {
+    const apiLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+      standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+      legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    })
     routes.forEach((route) => {
+      this.app.use(route.path, apiLimiter);
       this.app.use('/', route.router);
     });
   }

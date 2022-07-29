@@ -1,5 +1,12 @@
-export class LineService {
+import { randomLoginImage } from '../utils/wording';
+import { UsersRepo } from '../repo/users';
+import { LiffInfo } from 'interfaces/liff.interface';
 
+export class LineService {
+  repo: UsersRepo;
+  constructor() {
+    this.repo = new UsersRepo();
+  }
   createBubbleBox = (text: string = "", value: string = "", priceChangeColor: string = "#454545"): any => {
     return {
       type: "box",
@@ -444,5 +451,83 @@ export class LineService {
       }
     ];
     return bubble;
+  }
+
+  bubbleSignIn = () => {
+    const image = randomLoginImage();
+    const bubble =
+      [
+        {
+          "type": "bubble",
+          "hero": {
+            "type": "image",
+            "size": "full",
+            "aspectRatio": "20:13",
+            "aspectMode": "cover",
+            "url": `${image}`
+          },
+          "body": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "sm",
+            "contents": [
+              {
+                "type": "text",
+                "text": "TO THE MOON 🚀 🌕",
+                "wrap": true,
+                "weight": "bold",
+                "size": "md",
+                "color": "#B2A4FF"
+              },
+              {
+                "type": "box",
+                "layout": "baseline",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "🫢 คุณยังไม่ได้ลงชื่อใช้งานหรือเซสชันหมด ช่วยลงชื่อเข้าใช้งานก่อนนะจ๊ะ",
+                    "wrap": true,
+                    "weight": "bold",
+                    "size": "sm",
+                    "flex": 0,
+                    "margin": "none"
+                  }
+                ],
+                "margin": "lg"
+              }
+            ]
+          },
+          "footer": {
+            "type": "box",
+            "layout": "vertical",
+            "spacing": "sm",
+            "contents": [
+              {
+                "type": "button",
+                "style": "primary",
+                "action": {
+                  "type": "uri",
+                  "label": "🔑 เข้าสู่ระบบ ",
+                  "uri": `${process.env.FRONTEND_URL}`
+                },
+                "color": "#14C38E"
+              }
+            ]
+          }
+        }
+      ];
+    return bubble;
+  }
+
+  async findByUserId(userId: string) {
+    return await this.repo.findByUserId(userId);
+  }
+
+  async createUser(user: LiffInfo) {
+    return await this.repo.add(user);
+  }
+
+  async updateUser(user: LiffInfo) {
+    return await this.repo.update(user);
   }
 }

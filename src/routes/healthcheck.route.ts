@@ -1,19 +1,19 @@
 import { Router } from "express";
-import HealthcheckController from "../controllers/healthcheck.controller";
+import HealthCheckController from "../controllers/healthCheck.controller";
 import Route from "../interfaces/routes.interface";
 
-class HealthcheckRoute implements Route {
-  public path = "/healthcheck";
+class HealthCheckRoute implements Route {
+  public path = "/health-check";
   public router = Router();
-  public healthcheckController = new HealthcheckController();
+  public healthCheckController = new HealthCheckController();
 
   constructor() {
     this.initializeRoutes();
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, this.healthcheckController.index);
+    this.router.get(`${this.path}`, this.healthCheckController.index);
   }
 }
 
-export default HealthcheckRoute;
+export default HealthCheckRoute;

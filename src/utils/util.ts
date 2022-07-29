@@ -49,4 +49,10 @@ export class Utils {
   priceColor = (name: string) => {
     return name === 'Green' ? "#00D666" : "#F74C6C";
   }
+
+  compareDate = (date1: string, date2: string) => {
+    const _date1 = new Date(date1);
+    const _date2 = new Date(date2);
+    return _date1.getTime() > _date2.getTime();
+  }
 }

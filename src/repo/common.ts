@@ -21,5 +21,4 @@ export class CommonRepo {
         .collection(this.collection)
         .insertMany(items));
   }
-
 }
