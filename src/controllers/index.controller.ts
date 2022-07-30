@@ -58,7 +58,7 @@ class IndexController {
       return await this.handleEvent(req)
     } else {
       const payload = this.lineService.bubbleSignIn();
-      return this.pushMessage(res, req.body.events[0].source.userId, payload);
+      return this.sendMessage(req, this.flexMessage(payload));
     }
   }
 
@@ -520,7 +520,7 @@ class IndexController {
           replyToken: req.body.events[0].replyToken,
           messages: payload,
         }),
-      });
+      })
     } catch (err) {
       console.error(err);
     }
