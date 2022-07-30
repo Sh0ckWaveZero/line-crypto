@@ -55,21 +55,10 @@ class App {
       this.app.use(helmet.referrerPolicy());
       this.app.use(helmet.xssFilter());
       this.app.use(logger('combined'));
-      const whitelist = [process.env.FRONTEND_URL];
-      const corsOptions = {
-        origin: function (origin: any, callback: any) {
-          if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true)
-          } else {
-            callback(new Error('Not allowed by CORS'))
-          }
-        }
-      }
-      this.app.use(cors(corsOptions));
     } else {
       this.app.use(logger('dev'));
-      this.app.use(cors({ origin: true, credentials: true }));
     }
+    this.app.use(cors({ origin: true, credentials: true }));
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
