@@ -63,6 +63,8 @@ class IndexController {
         } else {
           next(new HttpException(400, `Unknown message: ${JSON.stringify(event.message)}`));
         }
+      } else {
+        next(new HttpException(400, `Unknown event: ${JSON.stringify(event)}`));
       }
     }
   }
