@@ -8,6 +8,7 @@ import CryptoInfo from "interfaces/crypto.interface";
 import * as crypto from "crypto";
 import { getConsolation } from "../utils/wording";
 import { Utils } from '../utils/util';
+import HttpException from "../exceptions/HttpException";
 
 class IndexController {
   private token = `Bearer ${process.env.LINE_TOKEN}`;
@@ -42,46 +43,44 @@ class IndexController {
         res.status(200).json({ message: "ok" });
         return;
       }
-      return this.handleLineLogin(req, res);
+      return this.handleEvent(req, res, next);
     } catch (error) {
       console.error(error);
       next(error);
     }
   };
 
-  async handleLineLogin(req: Request, res: Response) {
+  public handleEvent(req: Request, res: Response, next: NextFunction) {
+    const events = req.body.events;
+    for (const event of events) {
+      if (event.type === "message") {
+        if (event.message.type === "text") {
+          return this.handleLogin(req, event.message.text);
+        } else if (event.message.type === "sticker") {
+          return this.handleSticker(req, event);
+        } else if (event.message.type === "location") {
+          return this.handleLocation(req, event);
+        } else {
+          next(new HttpException(400, `Unknown message: ${JSON.stringify(event.message)}`));
+        }
+      }
+    }
+  }
+
+  public async handleLogin(req: Request, message: string) {
+    // reject not en lang
+    if (message.charAt(0) !== "/") return;
     const isPermission = await this.lineService.findByUserId(req.body.events[0].source.userId);
-    if (
-      !_.isEmpty(isPermission) &&
-      this.utils.compareDate(isPermission.expiresIn, new Date().toISOString())
+    if (!_.isEmpty(isPermission) && this.utils.compareDate(isPermission.expiresIn, new Date().toISOString())
     ) {
-      return await this.handleEvent(req)
+      this.handleText(req, message);
     } else {
       const payload = this.lineService.bubbleSignIn();
       return this.sendMessage(req, this.flexMessage(payload));
     }
   }
 
-  public handleEvent(req: Request) {
-    const events = req.body.events;
-    for (const event of events) {
-      if (event.type === "message") {
-        if (event.message.type === "text") {
-          return this.handleText(req, event.message.text);
-        } else if (event.message.type === "sticker") {
-          return this.handleSticker(req, event);
-        } else if (event.message.type === "location") {
-          return this.handleLocation(req, event);
-        } else {
-          throw new Error(`Unknown message: ${JSON.stringify(event.message)}`);
-        }
-      }
-    }
-  }
-
-  public handleText(req: Request, message: string) {
-    // reject not en lang
-    if (message.charAt(0) !== "/") return;
+  public async handleText(req: Request, message: string) {
     let commandList: any[] = message.split(" ");
     let command: string = "";
     let currency: any[] = [];
