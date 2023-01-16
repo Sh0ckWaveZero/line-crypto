@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "declaration": true,
+    "newLine": "lf",
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ESNext",
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      // https://docs.nestjs.com/cli/scripts#build
+      // https://nodejs.org/api/packages.html#imports
+      "#entity/*": [
+        "./src/entity/*"
+      ],
+    },
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
+  },
+  "include": [
+    "typings/global.d.ts",
+    "src/**/*",
+    "test/**/*",
+    "bin/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "old",
+  ]
+}
