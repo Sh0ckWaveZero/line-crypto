@@ -1,16 +1,27 @@
 import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
+import helmet from 'helmet';
 
 declare const module: any;
 
-async function bootstrap() {
+const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
-  await app.listen(4325, () => {
-    console.log(`🚀 Server ready at: http://localhost:4325`);
+  const configService = app.get(ConfigService);
+  const port = configService.get('port');
+  const host = configService.get('host');
+  app.use(helmet());
+  app.enableCors();
+  await app.listen(port, () => {
+    console.log(`🚀 Server ready at: ${host}:${port}`);
   });
+
+
+
   if (module.hot) {
     module.hot.accept();
     module.hot.dispose(() => app.close());
   }
 }
+
 bootstrap();
