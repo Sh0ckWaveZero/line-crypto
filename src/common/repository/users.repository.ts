@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '../providers/config.service';
 import { PrismaService } from '../providers/prisma.service';
 
 @Injectable()
 export class UsersRepository {
-  expiresIn = Number(process.env.JWT_EXPIRES_IN);
-  constructor(private prisma: PrismaService) {}
+  expiresIn = 0;
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {
+    this.expiresIn = Number(this.config.get('jwt.expiresIn'));
+  }
 
   async findById(userId: string) {
     try {

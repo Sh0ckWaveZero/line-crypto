@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { ConfigService } from './config.service';
 
 @Injectable()
 export class AirVisualService {
+
+  constructor(
+    private readonly config: ConfigService,
+  ) { }
   getNearestCity = async (
     latitude: number,
     longitude: number,
   ): Promise<any> => {
     const config = {
       method: 'get',
-      url: `http://api.airvisual.com/v2/nearest_city?lat=${latitude}&lon=${longitude}&key=${process.env.IQAIR_KEY}`,
+      url: `http://api.airvisual.com/v2/nearest_city?lat=${latitude}&lon=${longitude}&key=${this.config.get('iqAir.apiKey')}`,
       headers: {},
     };
     return await axios(config)

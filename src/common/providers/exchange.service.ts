@@ -6,6 +6,7 @@ import { CryptoInfo } from '../interface/crypto.interface';
 import { Injectable } from '@nestjs/common';
 import { UtilService } from './util.service';
 import axios from 'axios';
+import { ConfigService } from './config.service';
 
 @Injectable()
 export class ExchangeService {
@@ -13,7 +14,8 @@ export class ExchangeService {
     private readonly cmcService: CmcService,
     private readonly util: UtilService,
     private readonly cryptoCurrency: CryptoCurrencyService,
-  ) {}
+    private readonly config: ConfigService,
+  ) { }
 
   getBitkub = async (_currency: any): Promise<CryptoInfo> => {
     const currency = this.cryptoCurrency.mapSymbolsThai(_currency);
@@ -340,10 +342,10 @@ export class ExchangeService {
       const config: any = {
         method: 'get',
         url:
-          process.env.CMC_URL +
+          this.config.get('cmc.url') +
           `/v1/cryptocurrency/quotes/latest?id=${cryptoInfo.id}`,
         headers: {
-          'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY,
+          'X-CMC_PRO_API_KEY': this.config.get('cmc.apiKey'),
         },
       };
       return await axios(config)
@@ -363,10 +365,10 @@ export class ExchangeService {
       const config: any = {
         method: 'get',
         url:
-          process.env.CMC_URL +
+          this.config.get('cmc.url') +
           `/v1/cryptocurrency/map?start=${start}&limit=${limit}`,
         headers: {
-          'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY,
+          'X-CMC_PRO_API_KEY': this.config.get('cmc.apiKey'),
         },
       };
       return await axios(config)
@@ -393,7 +395,7 @@ export class ExchangeService {
         method: 'post',
         url: 'https://api.livecoinwatch.com/coins/single',
         headers: {
-          'x-api-key': process.env.X_APT_KEY,
+          'x-api-key': this.config.get('cmc.apiKey'),
           'Content-Type': 'application/json',
         },
         data: data,
