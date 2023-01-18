@@ -1,79 +1,59 @@
-# FROM node:lts-alpine
-
-# # SET Timezone (Asia/Bangkok GTM+07:00)
-# ENV TZ Asia/Bangkok
-# RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# # Copy package.json for install libraries
-# WORKDIR /usr/src/app/linebot-crypto
-# COPY package.json ./
-# RUN yarn install
-# COPY . .
-
-# EXPOSE 4325
-
-# CMD ["yarn", "start"]
+FROM node:18 As development
+RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+WORKDIR /app
+COPY --chown=node:node . .
+RUN pnpm install --frozen-lockfile
+# RUN pnpx nx run remote-state-server:build:production
+USER node
 
 ###################
 # BUILD FOR PRODUCTION
 ###################
-FROM node:18-alpine as build
 
-RUN apk add curl bash
-
-# install node-prune (https://github.com/tj/node-prune)
-RUN curl -sfL https://gobinaries.com/tj/node-prune | bash -s -- -b /usr/local/bin
-
-WORKDIR /usr/src/app
-
-COPY package.json yarn.lock ./
-
-RUN yarn install
-
-COPY . .
-
-# Run the build command which creates the production bundle
-RUN yarn run build
-
-# Set NODE_ENV environment variable
+FROM node:18 As build
+RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
+WORKDIR /app
+COPY --chown=node:node package.json pnpm-lock.yaml ./
+COPY --chown=node:node src/database/prisma ./prisma/
+COPY --chown=node:node --from=development /app/dist/ .
 ENV NODE_ENV production
-
-RUN yarn cache clean --force
-
-# run node prune
-RUN /usr/local/bin/node-prune
-
-RUN apk add --update --no-cache \
-  && rm -rf node_modules/rxjs/src/ \
-  && rm -rf node_modules/rxjs/bundles/ \
-  && rm -rf node_modules/rxjs/_esm5/ \
-  && rm -rf node_modules/rxjs/_esm2015/ \
-  && rm -rf node_modules/swagger-ui-dist/*.map \
-  && rm -rf node_modules/@prisma/engines/ \
-  && rm -rf node_modules/@prisma/engines-version \
-  && rm -rf node_modules/prisma \
-  # Remove cache
-  && rm -rf /root/.cache/ \
-  && rm -rf /root/.npm/ 
-RUN apk del npm curl bash
-
+RUN pnpm install --prod --frozen-lockfile
 USER node
 
-# ###################
-# # PRODUCTION
-# ###################
-FROM node:18-alpine AS deploy
+###################
+# PRODUCTION
+###################
 
-# SET Timezone (Asia/Bangkok GTM+07:00)
-ENV TZ Asia/Bangkok
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+FROM node:18-alpine As production
 
-WORKDIR /usr/src/app
+WORKDIR /app
+COPY --chown=node:node --from=build /app .
 
-COPY --chown=node:node --from=build /usr/src/app/package*.json /usr/src/app/
-COPY --chown=node:node --from=build /usr/src/app/yarn.lock /usr/src/app/
-COPY --chown=node:node --from=build /usr/src/app/dist/ /usr/src/app/dist/
-COPY --chown=node:node --from=build /usr/src/app/node_modules/ /usr/src/app/node_modules/
+RUN apk add --update --no-cache openssl1.1-compat curl
+# We don't have the existing sqlite file
+# So, we will create a fresh sqlite every time when build
+# This migration should be run every time when build
+RUN npx prisma migrate deploy
+# Prepare prima library
+RUN npx prisma generate
 
+# Clean up with https://github.com/tj/node-prune
+RUN curl -sf https://gobinaries.com/tj/node-prune | sh
 
-CMD [ "node", "dist/app.js" ]
+# Run cleanup necessary dependencies Ref: Fix npm by https://bobbyhadz.com/blog/npm-fix-the-upstream-dependency-conflict-installing-npm-packages
+# RUN npm prune --force --legacy-peer-deps --production
+RUN /usr/local/bin/node-prune
+
+# remove unused dependencies
+# https://tsh.io/blog/reduce-node-modules-for-better-performance/
+# https://medium.com/@alpercitak/nest-js-reducing-docker-container-size-4c2672369d30
+RUN rm -rf node_modules/rxjs/src/
+RUN rm -rf node_modules/rxjs/bundles/
+RUN rm -rf node_modules/rxjs/_esm5/
+RUN rm -rf node_modules/rxjs/_esm2015/
+RUN rm -rf node_modules/swagger-ui-dist/*.map
+
+ENV PORT=4352
+EXPOSE ${PORT}
+
+CMD [ "node", "main.js" ]
