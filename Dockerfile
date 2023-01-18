@@ -54,7 +54,7 @@ RUN rm -rf node_modules/rxjs/_esm5/
 RUN rm -rf node_modules/rxjs/_esm2015/
 RUN rm -rf node_modules/swagger-ui-dist/*.map
 
-ENV PORT=4352
+ENV PORT=4325
 EXPOSE ${PORT}
 
 CMD [ "node", "main.js" ]
