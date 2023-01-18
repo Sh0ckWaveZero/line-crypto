@@ -3,7 +3,7 @@ RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 WORKDIR /app
 COPY --chown=node:node . .
 RUN pnpm install --frozen-lockfile
-# RUN pnpx nx run remote-state-server:build:production
+RUN pnpm run build
 USER node
 
 ###################
