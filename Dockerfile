@@ -14,6 +14,7 @@ FROM node:18 As build
 RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 WORKDIR /app
 COPY --chown=node:node package.json pnpm-lock.yaml ./
+COPY --chown=node:node .env ./
 COPY --chown=node:node src/database/prisma ./prisma/
 COPY --chown=node:node --from=development /app/dist/ .
 ENV NODE_ENV production
@@ -33,7 +34,7 @@ RUN apk add --update --no-cache openssl1.1-compat curl
 # We don't have the existing sqlite file
 # So, we will create a fresh sqlite every time when build
 # This migration should be run every time when build
-RUN npx prisma migrate deploy
+# RUN npx prisma migrate deploy
 # Prepare prima library
 RUN npx prisma generate
 

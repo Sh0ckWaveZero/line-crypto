@@ -7,7 +7,9 @@ import { Injectable } from '@nestjs/common';
 export class OpenAiService {
   private configuration: Configuration;
   private openai: OpenAIApi;
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService
+  ) {
     this.configuration = new Configuration({
       apiKey: this.config.get('openAi.apiKey'),
     });
