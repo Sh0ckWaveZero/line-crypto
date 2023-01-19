@@ -21,6 +21,7 @@ import { Module } from '@nestjs/common';
 import { PrismaService } from './common/providers/prisma.service';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { configuration } from './config';
+import { LineModule } from './line/line.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { configuration } from './config';
       ttl: 60,
       limit: 10,
     }),
+    LineModule,
   ],
   controllers: [AppController],
   providers: [
