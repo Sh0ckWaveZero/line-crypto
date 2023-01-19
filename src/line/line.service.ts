@@ -16,7 +16,7 @@ export class LineService {
         displayName: body.displayName,
         pictureUrl: body.pictureUrl,
         statusMessage: body.statusMessage,
-        expiresIn: new Date(Date.now() + this.config.get('jwt.expiresIn')),
+        expiresIn: new Date(Date.now() + Number(this.config.get('jwt.expiresIn'))),
         createdAt: new Date(),
         updatedAt: new Date(),
       }
@@ -39,9 +39,9 @@ export class LineService {
       },
       data: {
         displayName: body.displayName,
-        pictureUrl: body.pictureUrl,
         statusMessage: body.statusMessage,
-        expiresIn: new Date(Date.now() + this.config.get('jwt.expiresIn')),
+        pictureUrl: body.pictureUrl,
+        expiresIn: new Date(Date.now() + Number(this.config.get('jwt.expiresIn'))),
         updatedAt: new Date(),
       }
     });

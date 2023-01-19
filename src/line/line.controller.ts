@@ -1,18 +1,22 @@
 import { Controller, HttpException, HttpStatus, Next, Post, Req, Res } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
+import { ConfigService } from '../common';
 import { LineService } from './line.service';
 
 
 @Controller('line')
 export class LineController {
-  constructor(private readonly lineService: LineService) { }
+  constructor(
+    private readonly lineService: LineService,
+    private readonly config: ConfigService,
+  ) { }
 
   @Post('/liff/callback')
   async liffCallback(@Req() req: Request, @Res() res: Response, @Next() next: NextFunction): Promise<any> {
     try {
       const token = req.headers.authorization.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, this.config.get('jwt.secret'));
       if (!decoded) {
         next(
           new HttpException(
