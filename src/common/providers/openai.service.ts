@@ -16,15 +16,15 @@ export class OpenAiService {
     this.openai = new OpenAIApi(this.configuration);
   }
   public async getCompletion(prompt: string): Promise<any> {
-    return await this.openai.createCompletion({
+    const { data } = await this.openai.createCompletion({
       model: 'text-davinci-003',
-      prompt: `You: ${prompt}`,
-      temperature: 0,
-      max_tokens: 60,
+      prompt: prompt,
+      temperature: 0.8,
+      max_tokens: 500,
       top_p: 1.0,
       frequency_penalty: 0.5,
-      presence_penalty: 0.0,
-      stop: ['You:'],
+      presence_penalty: 0,
     });
+    return data.choices[0].text;
   }
 }

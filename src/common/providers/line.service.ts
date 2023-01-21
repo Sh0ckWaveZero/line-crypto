@@ -100,7 +100,7 @@ export class LineService {
       return this.sendMessage(req, [
         {
           type: `text`,
-          text: text.data.choices[0].text,
+          text: text,
         },
       ]);
     }
