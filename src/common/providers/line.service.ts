@@ -10,6 +10,7 @@ import { ExchangeService } from './exchange.service';
 import { OpenAiService } from './openai.service';
 import { UtilService } from './util.service';
 import axios from 'axios';
+import randomColor from '../utils/randomColor';
 
 @Injectable()
 export class LineService {
@@ -429,6 +430,12 @@ export class LineService {
       data.volume_change_24h,
       data.priceChangeColor,
     );
+
+    const colorHeader = randomColor({
+      luminosity: 'bright',
+      hue: 'hsla',
+    });
+
     bubbleMessageTpl = {
       type: 'bubble',
       size: 'mega',
@@ -549,10 +556,10 @@ export class LineService {
       },
       styles: {
         header: {
-          backgroundColor: '#FABEA7',
+          backgroundColor: colorHeader,
         },
         hero: {
-          backgroundColor: '#FABEA7',
+          backgroundColor: colorHeader,
         },
         footer: {
           separator: true,
