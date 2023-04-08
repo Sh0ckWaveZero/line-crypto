@@ -1,4 +1,4 @@
-import { CONSOLATION, IMAGE_URLS } from '../constant/common.constant';
+import { CONSOLATION, IMAGE_GOLD_URLS, IMAGE_URLS } from '../constant/common.constant';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import type { NextFunction, Request, Response } from 'express';
 
@@ -141,6 +141,7 @@ export class LineService {
   private async handleCommand(command: string, currency: any[], req: Request) {
     const exchangeName = command;
     let promises: any[] = [];
+    let options: string = '';
 
     switch (exchangeName) {
       case 'bk' || 'bitkub':
@@ -190,6 +191,7 @@ export class LineService {
         break;
       case 'gold' || 'ทอง':
         promises = [this.exchange.getGoldPrice()];
+        options = 'gold';
         break;
       case 'gas' || 'น้ำมัน':
         if (currency.length === 0) this.replyNotFound(req);
@@ -200,7 +202,7 @@ export class LineService {
         return;
     }
 
-    await this.getFlexMessage(req, promises);
+    await this.getFlexMessage(req, promises, options);
   }
 
   private flexMessage(bubbleItems: any[]) {
@@ -216,23 +218,28 @@ export class LineService {
     ];
   }
 
-  private async getFlexMessage(req: any, data: any[]) {
+  private async getFlexMessage(req: any, data: any[], options?: string) {
     try {
       const items = await Promise.all(data);
       if (this.util.isEmpty(items[0])) {
         this.replyNotFound(req);
         return;
       }
-      this.replyRaw(req, items);
+      this.replyRaw(req, items, options);
     } catch (err) {
       console.error(err.message);
     }
   }
 
-  private replyRaw = async (req: Request, cryptoInfoItems: any[]) => {
+  private replyRaw = async (req: Request, cryptoInfoItems: any[], options?: string) => {
+    console.log('🚀 ~ file: line.service.ts:235 ~ LineService ~ replyRaw= ~ cryptoInfoItems:', cryptoInfoItems);
     const bubbleItems: any[] = [];
     for (const index in cryptoInfoItems) {
-      bubbleItems.push(this.bubbleMessage(cryptoInfoItems[index]));
+      if (options === 'gold') {
+        bubbleItems.push(this.bubbleGoldMessage(cryptoInfoItems[index]));
+      } else {
+        bubbleItems.push(this.bubbleMessage(cryptoInfoItems[index]));
+      }
     }
 
     Promise.all(bubbleItems)
@@ -565,6 +572,282 @@ export class LineService {
           separator: true,
         },
       },
+    };
+    return bubbleMessageTpl;
+  }
+
+  private bubbleGoldMessage(data: any): any {
+    let bubbleMessageTpl = {};
+    const image1 = this.util.randomItems(IMAGE_GOLD_URLS);
+    const image2 = this.util.randomItems(IMAGE_GOLD_URLS);
+    const image3 = this.util.randomItems(IMAGE_GOLD_URLS);
+    bubbleMessageTpl = {
+      "type": "bubble",
+      "size": "mega",
+      "header": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "box",
+            "layout": "horizontal",
+            "contents": [
+              {
+                "type": "image",
+                "url": `${image1}`,
+                "size": "full",
+                "aspectMode": "cover",
+                "aspectRatio": "150:196",
+                "gravity": "center",
+                "flex": 1
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "image",
+                    "url": `${image2}`,
+                    "size": "full",
+                    "aspectMode": "cover",
+                    "aspectRatio": "150:98",
+                    "gravity": "center"
+                  },
+                  {
+                    "type": "image",
+                    "url": `${image3}`,
+                    "size": "full",
+                    "aspectMode": "cover",
+                    "aspectRatio": "150:98",
+                    "gravity": "center"
+                  }
+                ],
+                "flex": 1
+              },
+              {
+                "type": "box",
+                "layout": "horizontal",
+                "contents": [
+                  {
+                    "type": "text",
+                    "text": "Gold",
+                    "size": "xs",
+                    "color": "#000000",
+                    "align": "center",
+                    "gravity": "center"
+                  }
+                ],
+                "backgroundColor": "#FFD700",
+                "paddingAll": "2px",
+                "paddingStart": "4px",
+                "paddingEnd": "4px",
+                "flex": 0,
+                "position": "absolute",
+                "offsetStart": "18px",
+                "offsetTop": "18px",
+                "cornerRadius": "100px",
+                "width": "48px",
+                "height": "25px"
+              }
+            ]
+          }
+        ],
+        "paddingAll": "0px"
+      },
+      "body": {
+        "type": "box",
+        "layout": "vertical",
+        "contents": [
+          {
+            "type": "box",
+            "layout": "vertical",
+            "contents": [
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "text",
+                    "contents": [],
+                    "size": "xl",
+                    "wrap": true,
+                    "text": "🏅 ราคาทองวันนี้",
+                    "color": "#ffffff",
+                    "weight": "bold"
+                  },
+                  {
+                    "type": "text",
+                    "text": "ความบริสุทธิ์ 96.5% ",
+                    "color": "#ffffffcc",
+                    "size": "sm"
+                  }
+                ],
+                "spacing": "sm"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "ทองคำแท่ง",
+                        "size": "md",
+                        "weight": "bold",
+                        "offsetBottom": "none"
+                      }
+                    ],
+                    "paddingTop": "sm",
+                    "paddingBottom": "sm"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "รับซื้อ",
+                        "align": "start"
+                      },
+                      {
+                        "type": "text",
+                        "align": "end",
+                        "text": `${data.barSell}`,
+                        "color": `${data.barSellColor}`
+                      }
+                    ]
+                  },
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "ขายออก",
+                        "align": "start"
+                      },
+                      {
+                        "type": "text",
+                        "align": "end",
+                        "text": `${data.barBuy}`,
+                        "color": `${data.barBuyColor}`
+                      }
+                    ]
+                  }
+                ],
+                "paddingAll": "10px",
+                "backgroundColor": "#FFD700",
+                "cornerRadius": "5px",
+                "margin": "xl"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "ทองรูปพรรณ",
+                        "size": "md",
+                        "weight": "bold",
+                        "offsetBottom": "none"
+                      }
+                    ],
+                    "paddingTop": "sm",
+                    "paddingBottom": "sm"
+                  },
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "รับซื้อ",
+                        "align": "start"
+                      },
+                      {
+                        "type": "text",
+                        "align": "end",
+                        "text": `${data.jewelrySell}`,
+                        "color": `${data.jewelrySellColor}`
+                      }
+                    ]
+                  },
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "ขายออก",
+                        "align": "start"
+                      },
+                      {
+                        "type": "text",
+                        "align": "end",
+                        "text": `${data.jewelryBuy}`,
+                        "color": `${data.jewelryBuyColor}`
+                      }
+                    ]
+                  }
+                ],
+                "paddingAll": "10px",
+                "backgroundColor": "#FFD700",
+                "cornerRadius": "5px",
+                "margin": "xl"
+              },
+              {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                  {
+                    "type": "box",
+                    "layout": "horizontal",
+                    "contents": [
+                      {
+                        "type": "text",
+                        "text": "วันนี้",
+                        "color": `${data.changeColor}`,
+                        "align": "start"
+                      },
+                      {
+                        "type": "text",
+                        "text": `${data.change}`,
+                        "weight": "bold",
+                        "align": "end",
+                        "color": `${data.changeColor}`
+                      }
+                    ],
+                    "paddingTop": "lg",
+                    "paddingEnd": "xs"
+                  }
+                ],
+                "paddingAll": "md"
+              }
+            ]
+          }
+        ],
+        "paddingAll": "20px",
+        "backgroundColor": "#464F69"
+      },
+      "footer": {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          {
+            "type": "text",
+            "text": `${data.updateAt}`,
+            "align": "center",
+            "size": "xs",
+          }
+        ]
+      }
     };
     return bubbleMessageTpl;
   }

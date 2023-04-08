@@ -1,12 +1,12 @@
 import * as cheerio from 'cheerio';
 
 import { CmcService } from './cmc.service';
+import { ConfigService } from './config.service';
 import { CryptoCurrencyService } from './cryptoCurrency.service';
 import { CryptoInfo } from '../interface/crypto.interface';
 import { Injectable } from '@nestjs/common';
 import { UtilService } from './util.service';
 import axios from 'axios';
-import { ConfigService } from './config.service';
 
 @Injectable()
 export class ExchangeService {
@@ -422,37 +422,47 @@ export class ExchangeService {
     try {
       const goldPrice: any = {};
       // Fetch HTML
-      const { data }: any = await axios.get('https://www.goldtraders.or.th/');
+      const { data }: any = await axios.get('https://xn--42cah7d0cxcvbbb9x.com/');
       // Load HTML
       const $: any = cheerio.load(data);
+
+      const goldBarPrices = $('div.divgta.goldshopf td:contains("ทองคำแท่ง")').parent().children();
+      const getGoldBarColors = this.util.getGoldPricesColors($, goldBarPrices);
+      const goldJewelryPrices = $('div.divgta.goldshopf td:contains("ทองรูปพรรณ")').parent().children();
+      const getGoldJewelryColors = this.util.getGoldPricesColors($, goldJewelryPrices);
+      const goldTodayChangePrices = $('div.divgta.goldshopf td:contains("วันนี้")').parent().children();
+      const goldUpdatePrices = $('div.divgta.goldshopf tr td.span.bg-span.txtd.al-r').parent().children();
+
+      const goldTodayChange: any = {};
+      goldTodayChangePrices.each((index: any, el: any) => {
+        if (index === 0) {
+          const className = $(el).attr('class');
+          if (className === 'span bg-span g-u') {
+            goldTodayChange.color = "#0F8000";
+            goldTodayChange.symbol = "🟢";
+          } else if (className === 'span bg-span g-d') {
+            goldTodayChange.color = "#E20303";
+            goldTodayChange.symbol = "🔴";
+          } else {
+            goldTodayChange.color = "#444";
+            goldTodayChange.symbol = "🟰";
+          }
+        }
+      });
+
       // Select div items
-      goldPrice.lastUpdate = $('span#DetailPlace_uc_goldprices1_lblAsTime b')
-        .text()
-        .trim();
-      goldPrice.barSell = $('span#DetailPlace_uc_goldprices1_lblBLSell b')
-        .text()
-        .trim();
-      goldPrice.barSellColor = this.util.priceColor(
-        $('span#DetailPlace_uc_goldprices1_lblBLSell b font').attr('color'),
-      );
-      goldPrice.barBuy = $('span#DetailPlace_uc_goldprices1_lblBLBuy b')
-        .text()
-        .trim();
-      goldPrice.barBuyColor = this.util.priceColor(
-        $('span#DetailPlace_uc_goldprices1_lblBLBuy b font').attr('color'),
-      );
-      goldPrice.jewelrySell = $('span#DetailPlace_uc_goldprices1_lblOMSell b')
-        .text()
-        .trim();
-      goldPrice.jewelrySellColor = this.util.priceColor(
-        $('span#DetailPlace_uc_goldprices1_lblOMSell b font').attr('color'),
-      );
-      goldPrice.jewelryBuy = $('span#DetailPlace_uc_goldprices1_lblOMBuy b')
-        .text()
-        .trim();
-      goldPrice.jewelryBuyColor = this.util.priceColor(
-        $('span#DetailPlace_uc_goldprices1_lblOMBuy b font').attr('color'),
-      );
+      goldPrice.barSell = goldBarPrices.eq(1).text();
+      goldPrice.barSellColor = getGoldBarColors[0];
+      goldPrice.barBuy = goldBarPrices.eq(2).text();
+      goldPrice.barBuyColor = getGoldBarColors[1];
+      goldPrice.jewelrySell = goldJewelryPrices.eq(1).text();
+      goldPrice.jewelrySellColor = getGoldJewelryColors[0];
+      goldPrice.jewelryBuy = goldJewelryPrices.eq(2).text();
+      goldPrice.jewelryBuyColor = getGoldJewelryColors[1];
+      goldPrice.change = goldTodayChange.symbol + " " + goldTodayChangePrices.eq(2).text();
+      goldPrice.changeColor = goldTodayChange.color;
+      goldPrice.updateAt = goldUpdatePrices.eq(0).text() + ' ' + goldUpdatePrices.eq(1).text() + ' ' + goldUpdatePrices.eq(2).text();
+
       return goldPrice;
     } catch (error) {
       console.error(error);

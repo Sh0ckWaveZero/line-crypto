@@ -123,4 +123,23 @@ export class UtilService {
     const randomIndex = Math.floor(Math.random() * url.length - 1);
     return url[randomIndex];
   };
+
+  public getGoldPricesColors = (element: any, goldBarPrices: any) => {
+    const colors = [];
+    const colorsClassName = {
+      'g-d': '#E20303',
+      'g-n': '#444',
+      'g-u': '#0F8000',
+    };
+
+    goldBarPrices.each((i: any, el: any) => {
+      const className = element(el).attr('class');
+      if (className !== 'span bg-span al-l') {
+        const currentColor = colorsClassName[className.split(' ')[2]];
+        colors.push(currentColor);
+      }
+    });
+
+    return colors;
+  }
 }
