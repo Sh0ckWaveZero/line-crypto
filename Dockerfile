@@ -2,7 +2,7 @@ FROM node:18 As development
 RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 WORKDIR /app
 COPY --chown=node:node . .
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 RUN pnpm run build
 USER node
 
@@ -18,7 +18,7 @@ COPY --chown=node:node .env ./
 COPY --chown=node:node src/database/prisma ./prisma/
 COPY --chown=node:node --from=development /app/dist/ .
 ENV NODE_ENV production
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod
 USER node
 
 ###################
