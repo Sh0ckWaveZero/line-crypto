@@ -232,7 +232,6 @@ export class LineService {
   }
 
   private replyRaw = async (req: Request, cryptoInfoItems: any[], options?: string) => {
-    console.log('🚀 ~ file: line.service.ts:235 ~ LineService ~ replyRaw= ~ cryptoInfoItems:', cryptoInfoItems);
     const bubbleItems: any[] = [];
     for (const index in cryptoInfoItems) {
       if (options === 'gold') {
